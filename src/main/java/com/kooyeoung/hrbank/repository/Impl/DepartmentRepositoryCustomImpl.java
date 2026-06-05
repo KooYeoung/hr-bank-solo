@@ -1,9 +1,7 @@
 package com.kooyeoung.hrbank.repository.Impl;
 
-import com.kooyeoung.hrbank.dto.repository.DepartmentSearchCondition;
-import com.kooyeoung.hrbank.dto.repository.DepartmentSummary;
-import com.kooyeoung.hrbank.entity.Department;
-import com.kooyeoung.hrbank.entity.QEmployee;
+import com.kooyeoung.hrbank.dto.repository.department.DepartmentSearchCondition;
+import com.kooyeoung.hrbank.dto.repository.department.DepartmentSummary;
 import com.kooyeoung.hrbank.repository.DepartmentRepositoryCustom;
 import com.querydsl.core.types.Order;
 import com.querydsl.core.types.OrderSpecifier;

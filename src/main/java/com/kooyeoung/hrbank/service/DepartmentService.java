@@ -1,10 +1,10 @@
 package com.kooyeoung.hrbank.service;
 
-import com.kooyeoung.hrbank.dto.repository.DepartmentSearchCondition;
-import com.kooyeoung.hrbank.dto.repository.DepartmentSummary;
-import com.kooyeoung.hrbank.dto.request.DepartmentCreateRequest;
-import com.kooyeoung.hrbank.dto.request.DepartmentSearchRequest;
-import com.kooyeoung.hrbank.dto.request.DepartmentUpdateRequest;
+import com.kooyeoung.hrbank.dto.repository.department.DepartmentSearchCondition;
+import com.kooyeoung.hrbank.dto.repository.department.DepartmentSummary;
+import com.kooyeoung.hrbank.dto.request.department.DepartmentCreateRequest;
+import com.kooyeoung.hrbank.dto.request.department.DepartmentSearchRequest;
+import com.kooyeoung.hrbank.dto.request.department.DepartmentUpdateRequest;
 import com.kooyeoung.hrbank.dto.response.DepartmentDto;
 import com.kooyeoung.hrbank.dto.response.PageResponse;
 import com.kooyeoung.hrbank.entity.Department;

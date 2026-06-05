@@ -1,6 +1,6 @@
 package com.kooyeoung.hrbank.dto.response;
 
-import com.kooyeoung.hrbank.dto.repository.DepartmentSummary;
+import com.kooyeoung.hrbank.dto.repository.department.DepartmentSummary;
 import com.kooyeoung.hrbank.entity.Department;
 
 import java.time.LocalDate;

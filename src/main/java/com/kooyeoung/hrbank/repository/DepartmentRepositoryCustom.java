@@ -1,8 +1,7 @@
 package com.kooyeoung.hrbank.repository;
 
-import com.kooyeoung.hrbank.dto.repository.DepartmentSearchCondition;
-import com.kooyeoung.hrbank.dto.repository.DepartmentSummary;
-import com.kooyeoung.hrbank.entity.Department;
+import com.kooyeoung.hrbank.dto.repository.department.DepartmentSearchCondition;
+import com.kooyeoung.hrbank.dto.repository.department.DepartmentSummary;
 
 import java.util.List;
 import java.util.Optional;

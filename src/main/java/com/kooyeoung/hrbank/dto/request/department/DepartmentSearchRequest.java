@@ -1,4 +1,4 @@
-package com.kooyeoung.hrbank.dto.request;
+package com.kooyeoung.hrbank.dto.request.department;
 
 import java.util.Set;
 

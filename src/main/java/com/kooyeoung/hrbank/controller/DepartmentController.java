@@ -1,8 +1,8 @@
 package com.kooyeoung.hrbank.controller;
 
-import com.kooyeoung.hrbank.dto.request.DepartmentCreateRequest;
-import com.kooyeoung.hrbank.dto.request.DepartmentSearchRequest;
-import com.kooyeoung.hrbank.dto.request.DepartmentUpdateRequest;
+import com.kooyeoung.hrbank.dto.request.department.DepartmentCreateRequest;
+import com.kooyeoung.hrbank.dto.request.department.DepartmentSearchRequest;
+import com.kooyeoung.hrbank.dto.request.department.DepartmentUpdateRequest;
 import com.kooyeoung.hrbank.dto.response.DepartmentDto;
 import com.kooyeoung.hrbank.dto.response.PageResponse;
 import com.kooyeoung.hrbank.service.DepartmentService;
@@ -10,8 +10,6 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-
-import java.util.List;
 
 @RestController
 @RequestMapping("/api/departments")

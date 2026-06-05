@@ -1,4 +1,4 @@
-package com.kooyeoung.hrbank.dto.repository;
+package com.kooyeoung.hrbank.dto.repository.department;
 
 public record DepartmentSearchCondition(
         String keyword
