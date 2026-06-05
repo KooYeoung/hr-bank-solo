@@ -1,0 +1,33 @@
+package com.kooyeoung.hrbank.dto.response;
+
+import com.kooyeoung.hrbank.entity.snapshot.EmployeeSnapshot;
+
+import java.time.LocalDate;
+
+public record EmployeeDto(
+        Long id,
+        String name,
+        String email,
+        String employeeNumber,
+        Long departmentId,
+        String departmentName,
+        String position,
+        LocalDate hireDate,
+        String status,
+        Long profileImageId
+) {
+    public static EmployeeDto from(EmployeeSnapshot snapshot) {
+        return new EmployeeDto(
+                snapshot.id(),
+                snapshot.name(),
+                snapshot.email(),
+                snapshot.employeeNumber(),
+                snapshot.departmentId(),
+                snapshot.departmentName(),
+                snapshot.position(),
+                snapshot.hireDate(),
+                snapshot.status(),
+                snapshot.profileImageId()
+        );
+    }
+}
