@@ -1,0 +1,16 @@
+services:
+  postgres:
+    image: postgres:16
+    container_name: hrbank-postgres
+    ports:
+      - "5432:5432"
+    environment:
+      POSTGRES_DB: hrbank
+      POSTGRES_USER: hrbank
+      POSTGRES_PASSWORD: hrbank1234
+      TZ: Asia/Seoul
+    volumes:
+      - hrbank-postgres-data:/var/lib/postgresql/data
+
+volumes:
+  hrbank-postgres-data:

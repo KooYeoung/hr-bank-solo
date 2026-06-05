@@ -1,3 +1,15 @@
 spring:
   application:
     name: hr-bank
+  datasource:
+    url: jdbc:postgresql://localhost:5432/hrbank
+    username: hrbank
+    password: hrbank1234
+
+  jpa:
+    hibernate:
+      ddl-auto: create
+    show-sql: true
+    properties:
+      hibernate:
+        format_sql: true
