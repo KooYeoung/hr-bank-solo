@@ -25,7 +25,8 @@ import java.util.List;
 @Transactional(readOnly = true)
 public class DepartmentService {
     private final DepartmentRepository departmentRepository;
-    private final EmployeeRepository employeeRepository;
+    private final DepartmentReader departmentReader;
+    private final EmployeeReader employeeReader;
 
     @Transactional
     public DepartmentDto save(DepartmentCreateRequest request){
@@ -40,7 +41,7 @@ public class DepartmentService {
 
     @Transactional
     public DepartmentDto update(Long id, DepartmentUpdateRequest request){
-        Department department = getDepartmentOrThrow(id);
+        Department department = departmentReader.getDepartmentOrThrow(id);
 
         if(department.isNameChanged(request.name())) existByNameThrow(request.name());
 
@@ -50,7 +51,7 @@ public class DepartmentService {
                 ,request.establishedDate()
         );
 
-        Long employeeCount = employeeRepository.countByDepartment_Id(id);
+        Long employeeCount = employeeReader.countByDepartment_Id(id);
 
         return  DepartmentDto.from(department, employeeCount);
     }
@@ -64,9 +65,9 @@ public class DepartmentService {
 
     @Transactional
     public void delete(Long id){
-        Department department = getDepartmentOrThrow(id);
+        Department department = departmentReader.getDepartmentOrThrow(id);
 
-        if(employeeRepository.existsByDepartment_Id(id)) throw new IllegalArgumentException("소속된 직원이 없는 경우에만 부서를 삭제할 수 있습니다.");
+        if(employeeReader.existsByDepartment_Id(id)) throw new IllegalArgumentException("소속된 직원이 없는 경우에만 부서를 삭제할 수 있습니다.");
 
         departmentRepository.delete(department);
     }
@@ -106,7 +107,6 @@ public class DepartmentService {
 
         }
 
-
         long totalDepartmentCount = departmentRepository.countDepartment(condition);
 
         return new PageResponse<>(
@@ -128,12 +128,6 @@ public class DepartmentService {
 
     private void existByNameThrow(String name){
         if(departmentRepository.existsByName(name)) throw new IllegalArgumentException("이미 존재하는 부서명칭 입니다.");
-    }
-
-    @NonNull
-    private Department getDepartmentOrThrow(Long id) {
-        return departmentRepository.findById(id)
-                .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 부서 입니다."));
     }
 
 }

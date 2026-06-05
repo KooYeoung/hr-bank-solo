@@ -6,6 +6,7 @@ import com.kooyeoung.hrbank.dto.request.department.DepartmentUpdateRequest;
 import com.kooyeoung.hrbank.dto.response.DepartmentDto;
 import com.kooyeoung.hrbank.dto.response.PageResponse;
 import com.kooyeoung.hrbank.service.DepartmentService;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
@@ -27,7 +28,7 @@ public class DepartmentController {
     }
 
     @PostMapping
-    public ResponseEntity<DepartmentDto> create(@RequestBody DepartmentCreateRequest request){
+    public ResponseEntity<DepartmentDto> create(@Valid @RequestBody DepartmentCreateRequest request){
         DepartmentDto savedDepartment = service.save(request);
 
         return ResponseEntity.ok().body(savedDepartment);
@@ -41,7 +42,7 @@ public class DepartmentController {
     }
 
     @PatchMapping("/{id}")
-    public ResponseEntity<DepartmentDto> update(@PathVariable Long id,@RequestBody DepartmentUpdateRequest request){
+    public ResponseEntity<DepartmentDto> update(@PathVariable Long id,@Valid @RequestBody DepartmentUpdateRequest request){
         DepartmentDto updatedDepartment = service.update(id, request);
 
         return ResponseEntity.ok().body(updatedDepartment);
