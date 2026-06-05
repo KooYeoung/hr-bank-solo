@@ -4,7 +4,7 @@ public record DepartmentSearchCondition(
         String keyword
         ,String sortFiled
         ,String cursor
-        ,int idAfter
+        ,long idAfter
         , boolean hasCursor
         , boolean isDesc
         , int size

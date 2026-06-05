@@ -1,10 +1,12 @@
-package com.kooyeoung.hrbank.servcie;
+package com.kooyeoung.hrbank.service;
 
 import com.kooyeoung.hrbank.dto.repository.DepartmentSearchCondition;
+import com.kooyeoung.hrbank.dto.repository.DepartmentSummary;
 import com.kooyeoung.hrbank.dto.request.DepartmentCreateRequest;
 import com.kooyeoung.hrbank.dto.request.DepartmentSearchRequest;
 import com.kooyeoung.hrbank.dto.request.DepartmentUpdateRequest;
 import com.kooyeoung.hrbank.dto.response.DepartmentDto;
+import com.kooyeoung.hrbank.dto.response.PageResponse;
 import com.kooyeoung.hrbank.entity.Department;
 import com.kooyeoung.hrbank.repository.DepartmentRepository;
 import com.kooyeoung.hrbank.repository.EmployeeRepository;
@@ -15,7 +17,6 @@ import org.springframework.lang.NonNull;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.time.LocalDate;
 import java.util.List;
 
 @Service
@@ -46,7 +47,7 @@ public class DepartmentService {
         department.updateInfo(
                 request.name()
                 ,request.description()
-                ,LocalDate.parse(request.establishedDate())
+                ,request.establishedDate()
         );
 
         Long employeeCount = employeeRepository.countByDepartment_Id(id);
@@ -55,11 +56,10 @@ public class DepartmentService {
     }
 
     public DepartmentDto findById(Long id){
-        Department department = getDepartmentOrThrow(id);
+        DepartmentSummary summaryResult = departmentRepository.findSummaryById(id)
+                .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 부서 입니다."));
 
-        Long employeeCount = employeeRepository.countByDepartment_Id(id);
-
-        return DepartmentDto.from(department, employeeCount);
+        return DepartmentDto.from(summaryResult);
     }
 
     @Transactional
@@ -71,12 +71,12 @@ public class DepartmentService {
         departmentRepository.delete(department);
     }
 
-    public List<DepartmentDto> list(DepartmentSearchRequest request){
+    public PageResponse<DepartmentDto> list(DepartmentSearchRequest request){
 
         // dto 생명주기 분리 하기 위해 사용.
         DepartmentSearchCondition condition = new DepartmentSearchCondition(
                 request.nameOrDescription()
-                , request.getSortFiledOrDefault()
+                , request.getSortFieldOrDefault()
                 , request.cursor()
                 , request.idAfter()
                 , request.hasCursor()
@@ -84,10 +84,46 @@ public class DepartmentService {
                 , request.getSizeOrDefault()
         );
 
-        return departmentRepository.searchDepartment(condition)
-                .stream()
+        int size = condition.size();
+        List<DepartmentSummary> departmentList = departmentRepository.searchDepartment(condition);
+
+        boolean hasNext = departmentList.size() > size;
+
+        List<DepartmentSummary> pageContent = hasNext ? departmentList.subList(0, size) : departmentList;
+
+        List<DepartmentDto> content = pageContent.stream()
                 .map(DepartmentDto::from)
                 .toList();
+
+        String nextCursor = null;
+        Long nextIdAfter = null;
+
+        if(hasNext && !pageContent.isEmpty()){
+            DepartmentSummary last = pageContent.get(pageContent.size()-1);
+
+            nextCursor = getNextCursor(condition.sortFiled(), last);
+            nextIdAfter = last.id();
+
+        }
+
+
+        long totalDepartmentCount = departmentRepository.countDepartment(condition);
+
+        return new PageResponse<>(
+                content
+                , nextCursor
+                ,nextIdAfter
+                ,size
+                ,totalDepartmentCount
+                ,hasNext
+        );
+    }
+
+    private String getNextCursor(String sortFiled, DepartmentSummary last) {
+        if("establishedDate".equals(sortFiled)){
+            return last.establishedDate().toString();
+        }
+        return last.name();
     }
 
     private void existByNameThrow(String name){

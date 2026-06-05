@@ -9,9 +9,4 @@ public interface DepartmentRepository extends JpaRepository<Department, Long>, D
 
     boolean existsByName(String name);
 
-    Page<Department> findByNameOrDescription(String name, String description, Pageable pageable);
-
-
-
-
 }

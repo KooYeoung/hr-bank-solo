@@ -7,8 +7,10 @@ import com.kooyeoung.hrbank.entity.QEmployee;
 import com.kooyeoung.hrbank.repository.DepartmentRepositoryCustom;
 import com.querydsl.core.types.Order;
 import com.querydsl.core.types.OrderSpecifier;
+import com.querydsl.core.types.Predicate;
 import com.querydsl.core.types.Projections;
 import com.querydsl.core.types.dsl.BooleanExpression;
+import com.querydsl.jpa.impl.JPAQuery;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import lombok.RequiredArgsConstructor;
 import org.springframework.lang.NonNull;
@@ -17,6 +19,7 @@ import org.springframework.stereotype.Repository;
 
 import java.time.LocalDate;
 import java.util.List;
+import java.util.Optional;
 
 import static com.kooyeoung.hrbank.entity.QDepartment.department;
 import static com.kooyeoung.hrbank.entity.QEmployee.employee;
@@ -30,34 +33,54 @@ public class DepartmentRepositoryCustomImpl implements DepartmentRepositoryCusto
     @Override
     public List<DepartmentSummary> searchDepartment(DepartmentSearchCondition condition) {
 
+        return buildDepartmentSummaryQuery(containsNameOrDescription(condition.keyword())
+                , cursorCondition(condition))
+                .orderBy(orderSpecifier(condition), idOrderSpecifier(condition))
+                .limit(condition.size()+1)
+                .fetch();
+    }
+
+    @Override
+    public Optional<DepartmentSummary> findSummaryById(Long id) {
+        return Optional
+                .ofNullable(buildDepartmentSummaryQuery(department.id.eq(id))
+                        .fetchOne()
+                );
+    }
+
+    @Override
+    public long countDepartment(DepartmentSearchCondition condition) {
+        Long totalDepartments = jpaQueryFactory
+                .select(department.id.count())
+                .from(department)
+                .where(containsNameOrDescription(condition.keyword()))
+                .fetchOne();
+
+        return totalDepartments == null ? 0 : totalDepartments;
+    }
+
+    private JPAQuery<DepartmentSummary> buildDepartmentSummaryQuery(Predicate... predicates) {
         return jpaQueryFactory.
                 select(
                         Projections.constructor(
                                 DepartmentSummary.class
-                                ,department.id
-                                ,department.name
-                                ,department.description
-                                ,department.establishedDate
-                                ,employee.id.count()
+                                , department.id
+                                , department.name
+                                , department.description
+                                , department.establishedDate
+                                , employee.id.count()
                         )
                 )
                 .from(department)
                 .leftJoin(employee).on(employee.department.id.eq(department.id))
-                .where(
-                        containsNameOrDescription(condition.keyword())
-                        , cursorCondition(condition)
-                )
+                .where(predicates)
                 .groupBy(
                         department.id
                         ,department.name
                         ,department.description
                         ,department.establishedDate
-                )
-                .orderBy(orderSpecifier(condition), idOrderSpecifier(condition))
-                .limit(condition.size())
-                .fetch();
+                );
     }
-
 
     @NonNull
     private OrderSpecifier<?> orderSpecifier(DepartmentSearchCondition condition) {

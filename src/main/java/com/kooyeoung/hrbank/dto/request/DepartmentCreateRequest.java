@@ -14,11 +14,11 @@ public record DepartmentCreateRequest(
         String description,
         @NotNull
         @NotEmpty
-        String establishedDate
+        LocalDate establishedDate
 ) {
 
     public Department toDepartment(){
-        return new Department(name, description, LocalDate.parse(establishedDate));
+        return new Department(name, description, establishedDate);
     }
 
 }

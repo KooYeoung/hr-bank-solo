@@ -6,7 +6,7 @@ public record DepartmentSearchRequest(
         // 부서 이름 또는 설명
         String nameOrDescription
         // 이전 페이지 마지막 요소 ID
-        , Integer idAfter
+        , Long idAfter
         // 커서 (다음 페이지 시작점)
         , String cursor
         // 페이지 크기 (기본값: 10)
@@ -24,7 +24,7 @@ public record DepartmentSearchRequest(
         return size == null || size <= 0  ? 10 : size;
     }
 
-    public String getSortFiledOrDefault(){
+    public String getSortFieldOrDefault(){
         return sortField == null || sortField.isBlank() || !sortFields.contains(sortField)
         ? "name" : sortField;
     }
