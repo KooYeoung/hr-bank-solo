@@ -102,7 +102,7 @@ public class DepartmentService {
         if(hasNext && !pageContent.isEmpty()){
             DepartmentSummary last = pageContent.get(pageContent.size()-1);
 
-            nextCursor = getNextCursor(condition.sortFiled(), last);
+            nextCursor = getNextCursor(condition.sortField(), last);
             nextIdAfter = last.id();
 
         }

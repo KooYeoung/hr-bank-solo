@@ -17,20 +17,20 @@ public record DepartmentSearchRequest(
         , String sortDirection
 ) {
 
-    private final static Set<String> sortFields = Set.of("name" , "establishedDate");
-    private final static Set<String> sortDirections = Set.of("asc" , "desc");
+    private final static Set<String> SORT_FIELDS = Set.of("name" , "establishedDate");
+    private final static Set<String> SORT_DIRECTIONS = Set.of("asc" , "desc");
 
     public int getSizeOrDefault(){
         return size == null || size <= 0  ? 10 : size;
     }
 
     public String getSortFieldOrDefault(){
-        return sortField == null || sortField.isBlank() || !sortFields.contains(sortField)
+        return sortField == null || sortField.isBlank() || !SORT_FIELDS.contains(sortField)
         ? "name" : sortField;
     }
 
     public String getSortDirectionOrDefault(){
-        return sortDirection == null || sortDirection.isBlank() || !sortDirections.contains(sortDirection.toLowerCase())
+        return sortDirection == null || sortDirection.isBlank() || !SORT_DIRECTIONS.contains(sortDirection.toLowerCase())
                 ? "asc" : sortDirection;
     }
 

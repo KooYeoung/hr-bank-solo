@@ -2,7 +2,7 @@ package com.kooyeoung.hrbank.dto.repository.department;
 
 public record DepartmentSearchCondition(
         String keyword
-        ,String sortFiled
+        ,String sortField
         ,String cursor
         ,long idAfter
         , boolean hasCursor

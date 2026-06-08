@@ -1,4 +1,4 @@
-package com.kooyeoung.hrbank.repository.Impl;
+package com.kooyeoung.hrbank.repository.impl;
 
 import com.kooyeoung.hrbank.dto.repository.department.DepartmentSearchCondition;
 import com.kooyeoung.hrbank.dto.repository.department.DepartmentSummary;
@@ -84,7 +84,7 @@ public class DepartmentRepositoryCustomImpl implements DepartmentRepositoryCusto
     private OrderSpecifier<?> orderSpecifier(DepartmentSearchCondition condition) {
         Order order = condition.isDesc() ? Order.DESC : Order.ASC;
 
-        if("establishedDate".equals(condition.sortFiled())){
+        if("establishedDate".equals(condition.sortField())){
             return new OrderSpecifier<>(order, department.establishedDate);
         }
         return new OrderSpecifier<>(order, department.name);
@@ -103,7 +103,7 @@ public class DepartmentRepositoryCustomImpl implements DepartmentRepositoryCusto
             return null;
         }
 
-        String sortField = condition.sortFiled();
+        String sortField = condition.sortField();
         boolean desc = condition.isDesc();
         String cursor = condition.cursor();
 
