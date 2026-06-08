@@ -35,3 +35,6 @@ out/
 
 ### VS Code ###
 .vscode/
+
+#이미지 파일 및 CSV 파일 저장소
+./storage

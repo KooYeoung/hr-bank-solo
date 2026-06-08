@@ -20,5 +20,6 @@ spring:
 hrbank:
   employee-number:
     sequence-width: 4
+  file-directory: ./storage
 
 

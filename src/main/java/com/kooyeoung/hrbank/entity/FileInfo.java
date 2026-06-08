@@ -27,4 +27,28 @@ public class FileInfo {
 
     @Column(nullable = false)
     private Long size;
+
+    @Column(name = "file_path", nullable = false, length = 500)
+    @Getter
+    private String filePath;
+
+    @Column(nullable = false, length = 50)
+    @Getter
+    @Enumerated(EnumType.STRING)
+    private FileType type;
+
+    public FileInfo(
+            String originalFileName
+    ,String storedFileName
+            ,String filePath
+            ,String contentType
+            ,Long size
+            ,FileType type){
+        this.originalFileName =originalFileName;
+        this.storedFileName = storedFileName;
+        this.filePath = filePath;
+        this.contentType =contentType;
+        this.size =size;
+        this.type = type;
+    }
 }

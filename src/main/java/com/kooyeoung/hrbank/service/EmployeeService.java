@@ -12,6 +12,7 @@ import com.kooyeoung.hrbank.dto.response.PageResponse;
 import com.kooyeoung.hrbank.entity.Department;
 import com.kooyeoung.hrbank.entity.Employee;
 import com.kooyeoung.hrbank.entity.FileInfo;
+import com.kooyeoung.hrbank.entity.FileType;
 import com.kooyeoung.hrbank.entity.snapshot.EmployeeSnapshot;
 import com.kooyeoung.hrbank.repository.EmployeeRepository;
 import lombok.RequiredArgsConstructor;
@@ -31,6 +32,7 @@ public class EmployeeService {
     private final EmployeeRepository repository;
     private final EmployeeNumberGenerator numberGenerator;
     private final DepartmentReader departmentReader;
+    private final FileInfoService fileInfoService;
 
     @Transactional
     public EmployeeDto create(EmployeeCreateRequest request, MultipartFile file){
@@ -39,10 +41,8 @@ public class EmployeeService {
         Department department = departmentReader.getDepartmentOrThrow(request.departmentId());
         String employeeNumber = numberGenerator.generate(request.hireDate());
 
-        FileInfo profileFile = null;
-        if(file != null && !file.isEmpty()){
-            // TODO 파일 저장 로직.
-        }
+        FileInfo profileFile = fileInfoService.save(file, FileType.PROFILE_IMAGE);
+
         EmployeeCreateCommand command = request.toCommand(department, profileFile);
 
         Employee employee = new Employee(command);
@@ -54,6 +54,12 @@ public class EmployeeService {
         // TODO 스냅샷 필요 필드 추가후 사용.
         // TODO 2차 수정 이벤트 관리 방식으로 변환 예정.
         EmployeeSnapshot snapshot = savedEmployee.snapshot();
+
+        /**
+         * 만약 파일 저장은 됐는데 직원 저장에서 예외가 나면 실제 파일이 디스크에 남을 수 있습니다.
+         * 이것도 나중에 보상 처리나 afterCommit 이벤트로 정리
+         */
+
 
         // dto 반환
         return EmployeeDto.from(snapshot);
@@ -149,38 +155,44 @@ public class EmployeeService {
         Department department = departmentReader.getDepartmentOrThrow(request.departmentId());
 
         EmployeeSnapshot prevSnapshot = foundEmployee.snapshot();
-        FileInfo profileInfo = foundEmployee.getProfileImage();
-        if(profileImage != null && !profileImage.isEmpty()){
-            // TODO
-            // 기존 이미지 삭제 해야함..?
 
-            // 파일 저장.
+        FileInfo beforeProfileInfo = foundEmployee.getProfileImage();
+        FileInfo currentProfileInfo = fileInfoService.save(profileImage, FileType.PROFILE_IMAGE);
 
-            // 기존 등록되어 있던 파일 삭제 후 기존 db 정보 삭제?
-
-            // 저장 성공시 db 정보 저장.
-            profileInfo = null;
-        }
+        FileInfo profileInfo = currentProfileInfo != null
+                ? currentProfileInfo
+                : beforeProfileInfo;
 
         EmployeeUpdateCommand command = request.toCommand(department, profileInfo);
         foundEmployee.updateInfo(command);
         foundEmployee.changeProfileImage(command.profileImage());
+
+        if (currentProfileInfo != null && beforeProfileInfo != null){
+            fileInfoService.delete(beforeProfileInfo.getId());
+        }
 
         EmployeeSnapshot afterSnapshot = foundEmployee.snapshot();
         // TODO 히스토리 저장 로직
         // TODO 스냅샷 필요 필드 추가후 사용.
         // TODO 2차 수정 이벤트 관리 방식으로 변환 예정.
 
+        /**
+         * 만약 파일 저장은 됐는데 직원 저장에서 예외가 나면 실제 파일이 디스크에 남을 수 있습니다.
+         * 이것도 나중에 보상 처리나 afterCommit 이벤트로 정리
+         */
+
+
         return EmployeeDto.from(afterSnapshot);
     }
 
+    @Transactional
     public void delete(Long id){
         Employee foundEmployee = getEmployeeDetailOrThrow(id);
 
         EmployeeSnapshot snapshot = foundEmployee.snapshot();
 
         if(foundEmployee.getProfileImage() != null){
-            // TODO 파일 삭제 및 데이터 정리.
+            fileInfoService.delete(foundEmployee.getProfileImage().getId());
         }
 
         // TODO 히스토리 저장 로직

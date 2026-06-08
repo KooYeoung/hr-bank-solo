@@ -1,0 +1,5 @@
+ALTER TABLE file_info
+    ADD COLUMN file_path VARCHAR(500) NOT NULL;
+
+ALTER TABLE file_info
+    ADD COLUMN type VARCHAR(50) NOT NULL;
