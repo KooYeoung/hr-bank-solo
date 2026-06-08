@@ -7,7 +7,7 @@ import org.springframework.data.repository.query.Param;
 
 import java.util.Optional;
 
-public interface EmployeeRepository extends JpaRepository<Employee, Long> {
+public interface EmployeeRepository extends JpaRepository<Employee, Long>, EmployeeRepositoryCustom {
 
     boolean existsByDepartment_Id(Long departmentId);
     Long countByDepartment_Id(Long departmentId);

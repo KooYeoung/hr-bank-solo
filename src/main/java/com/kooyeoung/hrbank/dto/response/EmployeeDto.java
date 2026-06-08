@@ -1,5 +1,6 @@
 package com.kooyeoung.hrbank.dto.response;
 
+import com.kooyeoung.hrbank.dto.repository.employee.EmployeeSummary;
 import com.kooyeoung.hrbank.entity.snapshot.EmployeeSnapshot;
 
 import java.time.LocalDate;
@@ -28,6 +29,21 @@ public record EmployeeDto(
                 snapshot.hireDate(),
                 snapshot.status(),
                 snapshot.profileImageId()
+        );
+    }
+
+    public static EmployeeDto from(EmployeeSummary summary){
+        return new EmployeeDto(
+                summary.id()
+                ,summary.name()
+                ,summary.email()
+                ,summary.employeeNumber()
+                ,summary.departmentId()
+                , summary.departmentName()
+                ,summary.position()
+                ,summary.hireDate()
+                ,summary.status()
+                ,summary.profileImageId()
         );
     }
 }
