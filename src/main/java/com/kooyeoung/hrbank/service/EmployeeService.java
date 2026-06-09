@@ -2,6 +2,7 @@ package com.kooyeoung.hrbank.service;
 
 import com.kooyeoung.hrbank.dto.command.employee.EmployeeCreateCommand;
 import com.kooyeoung.hrbank.dto.command.employee.EmployeeUpdateCommand;
+import com.kooyeoung.hrbank.dto.command.history.EmployeeHistoryCreateCommand;
 import com.kooyeoung.hrbank.dto.repository.employee.EmployeeSearchCondition;
 import com.kooyeoung.hrbank.dto.repository.employee.EmployeeSummary;
 import com.kooyeoung.hrbank.dto.request.employee.EmployeeCreateRequest;
@@ -33,6 +34,7 @@ public class EmployeeService {
     private final EmployeeNumberGenerator numberGenerator;
     private final DepartmentReader departmentReader;
     private final FileInfoService fileInfoService;
+    private final EmployeeHistoryService employeeHistoryService;
 
     @Transactional
     public EmployeeDto create(EmployeeCreateRequest request, MultipartFile file){
@@ -49,11 +51,13 @@ public class EmployeeService {
         employee.assignEmployeeNumber(employeeNumber);
 
         Employee savedEmployee = repository.save(employee);
-
-        // TODO 히스토리 저장 로직
-        // TODO 스냅샷 필요 필드 추가후 사용.
-        // TODO 2차 수정 이벤트 관리 방식으로 변환 예정.
         EmployeeSnapshot snapshot = savedEmployee.snapshot();
+
+        employeeHistoryService.save(EmployeeHistoryCreateCommand.create(
+                null,snapshot, request.memo()
+        ));
+
+        // TODO 2차 수정 이벤트 관리 방식으로 변환 예정.
 
         /**
          * 만약 파일 저장은 됐는데 직원 저장에서 예외가 나면 실제 파일이 디스크에 남을 수 있습니다.
@@ -172,8 +176,10 @@ public class EmployeeService {
         }
 
         EmployeeSnapshot afterSnapshot = foundEmployee.snapshot();
-        // TODO 히스토리 저장 로직
-        // TODO 스냅샷 필요 필드 추가후 사용.
+
+        employeeHistoryService.save(EmployeeHistoryCreateCommand.create(
+                prevSnapshot,afterSnapshot, request.memo()
+        ));
         // TODO 2차 수정 이벤트 관리 방식으로 변환 예정.
 
         /**
@@ -195,8 +201,9 @@ public class EmployeeService {
             fileInfoService.delete(foundEmployee.getProfileImage().getId());
         }
 
-        // TODO 히스토리 저장 로직
-        // TODO 스냅샷 필요 필드 추가후 사용.
+        employeeHistoryService.save(EmployeeHistoryCreateCommand.create(
+                snapshot,null,""
+        ));
         // TODO 2차 수정 이벤트 관리 방식으로 변환 예정.
 
         repository.delete(foundEmployee);

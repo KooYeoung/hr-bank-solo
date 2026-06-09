@@ -94,7 +94,7 @@ public class EmployeeRepositoryCustomImpl implements EmployeeRepositoryCustom {
     }
 
     @NonNull
-    private static OrderSpecifier<Long> idOrderSpecifier(EmployeeSearchCondition condition) {
+    private OrderSpecifier<Long> idOrderSpecifier(EmployeeSearchCondition condition) {
         Order order = condition.isDesc() ? Order.DESC : Order.ASC;
         return new OrderSpecifier<>(order, employee.id);
     }
