@@ -21,5 +21,9 @@ hrbank:
   employee-number:
     sequence-width: 4
   file-directory: ./storage
+  backup:
+    schedule:
+      enabled: true
+      fixed-delay-ms : 3600000
 
 

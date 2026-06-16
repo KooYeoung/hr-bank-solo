@@ -43,7 +43,7 @@ public class FileInfoService {
     public FileInfo save(MultipartFile file, FileType type){
         if(file == null || file.isEmpty()) return null;
 
-        String originalFilename = getCleanFileName(file);
+        String originalFilename = getCleanFileName(file.getOriginalFilename());
 
         int dotIndex = originalFilename.lastIndexOf(".");
         String extension = (dotIndex >= 0) ? originalFilename.substring(dotIndex).toLowerCase()
@@ -82,15 +82,15 @@ public class FileInfoService {
     }
 
     @NonNull
-    private String getCleanFileName(MultipartFile file) {
-        String originalFilename = file.getOriginalFilename();
+    private String getCleanFileName(String filename) {
 
-        if (originalFilename == null || originalFilename.isBlank()) {
+
+        if (filename == null || filename.isBlank()) {
             throw new IllegalArgumentException("파일명이 존재하지 않습니다.");
         }
 
-        originalFilename = StringUtils.cleanPath(originalFilename);
-        return originalFilename;
+        filename = StringUtils.cleanPath(filename);
+        return filename;
     }
 
     private void validateFileType(FileType type, String extension) {
@@ -104,6 +104,13 @@ public class FileInfoService {
         if (FileType.BACKUP_EMPLOYEE_CSV.equals(type)) {
             if (!".csv".equals(extension)) {
                 throw new IllegalArgumentException("csv 파일 형식이 아닙니다.");
+            }
+            return;
+        }
+
+        if (FileType.BACKUP_ERROR_LOG.equals(type)) {
+            if (!".log".equals(extension) && !".txt".equals(extension)) {
+                throw new IllegalArgumentException("로그 파일 형식이 아닙니다.");
             }
             return;
         }
@@ -123,6 +130,68 @@ public class FileInfoService {
             throw new RuntimeException("파일 삭제 중 오류가 발생했습니다.",e);
         }
 
+    }
+
+    public FileInfo saveGeneratedFile(
+            String originalFilename,
+            String contentType,
+            FileType type,
+            GeneratedFileWriter fileWriter
+    ) {
+        originalFilename = getCleanFileName(originalFilename);
+
+        int dotIndex = originalFilename.lastIndexOf(".");
+        String extension = (dotIndex >= 0)
+                ? originalFilename.substring(dotIndex).toLowerCase()
+                : "";
+
+        validateFileType(type, extension);
+
+        String uniqueId = UUID.randomUUID().toString();
+        String prefixFolder = uniqueId.substring(0, uniqueId.indexOf("-"));
+        String storeFilename = uniqueId.replace("-", "") + extension;
+
+        Path directory = resolveDirectory(type)
+                .resolve(prefixFolder);
+
+        Path storePath = directory.resolve(storeFilename);
+
+        try {
+            Files.createDirectories(directory);
+
+            fileWriter.write(storePath);
+
+            long size = Files.size(storePath);
+
+            FileInfo fileInfo = new FileInfo(
+                    originalFilename,
+                    storeFilename,
+                    storePath.toString(),
+                    contentType,
+                    size,
+                    type
+            );
+
+            return repository.save(fileInfo);
+
+        } catch (IOException e) {
+            deleteQuietly(storePath);
+            throw new IllegalStateException("파일 저장 중 오류가 발생했습니다.", e);
+        } catch (RuntimeException e) {
+            deleteQuietly(storePath);
+            throw e;
+        }
+
+    }
+
+    private void deleteQuietly(Path path) {
+        try {
+            if (path != null) {
+                Files.deleteIfExists(path);
+            }
+        } catch (IOException e) {
+            log.warn("파일 정리 중 오류가 발생했습니다. path={}", path, e);
+        }
     }
 
     private Path resolveDirectory(FileType type) {

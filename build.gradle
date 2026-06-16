@@ -42,6 +42,9 @@ dependencies {
     implementation 'org.flywaydb:flyway-core'
     implementation 'org.flywaydb:flyway-database-postgresql'
 
+    // csv
+    implementation 'org.apache.commons:commons-csv:1.14.1'
+
 }
 
 tasks.named('test') {

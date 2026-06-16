@@ -2,6 +2,7 @@ package com.kooyeoung.hrbank.entity;
 
 import jakarta.persistence.*;
 import lombok.AccessLevel;
+import lombok.Getter;
 import lombok.NoArgsConstructor;
 
 import java.time.LocalDateTime;
@@ -19,6 +20,7 @@ public class EmployeeHistory {
     private String employeeNumber;
     private String memo;
     private String ipAddress;
+    @Getter
     private LocalDateTime createdAt;
 
     @OneToMany(mappedBy = "history")

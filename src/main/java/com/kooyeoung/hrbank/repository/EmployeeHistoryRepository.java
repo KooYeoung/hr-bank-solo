@@ -38,4 +38,5 @@ public interface EmployeeHistoryRepository extends JpaRepository<EmployeeHistory
 
     Optional<Long> countByCreatedAtBetween(LocalDateTime from, LocalDateTime to);
 
+    Optional<EmployeeHistory> findTopByOrderByCreatedAtDesc();
 }
