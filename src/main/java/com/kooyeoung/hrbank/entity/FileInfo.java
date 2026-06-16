@@ -6,6 +6,7 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.ToString;
 
+@Getter
 @Entity
 @ToString
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
@@ -13,7 +14,6 @@ public class FileInfo {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Getter
     private Long id;
 
     @Column(name = "original_file_name", nullable = false, length = 255)
@@ -29,11 +29,9 @@ public class FileInfo {
     private Long size;
 
     @Column(name = "file_path", nullable = false, length = 500)
-    @Getter
     private String filePath;
 
     @Column(nullable = false, length = 50)
-    @Getter
     @Enumerated(EnumType.STRING)
     private FileType type;
 

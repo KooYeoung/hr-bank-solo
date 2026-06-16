@@ -1,11 +1,13 @@
 package com.kooyeoung.hrbank.service;
 
-import ch.qos.logback.core.util.StringUtil;
+import com.kooyeoung.hrbank.dto.response.FileDownloadResponse;
 import com.kooyeoung.hrbank.entity.FileInfo;
 import com.kooyeoung.hrbank.entity.FileType;
 import com.kooyeoung.hrbank.repository.FileInfoRepository;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.core.io.Resource;
+import org.springframework.core.io.UrlResource;
 import org.springframework.lang.NonNull;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -13,6 +15,7 @@ import org.springframework.util.StringUtils;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
+import java.net.MalformedURLException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -38,6 +41,38 @@ public class FileInfoService {
         }catch (IOException e){
             throw new RuntimeException("업로드 디렉토리 생성 실패 : " + rootPath, e);
         }
+    }
+
+    public FileDownloadResponse download(Long id){
+        FileInfo fileInfo = repository.findById(id).orElseThrow(() -> new IllegalArgumentException("파일의 정보를 찾을수 없습니다."));
+
+        if(fileInfo.getType().equals(FileType.PROFILE_IMAGE)) throw new IllegalArgumentException("이미지 파일의 다운로드는 지원하지 않습니다.");
+
+        Path filePath = Paths.get(fileInfo.getFilePath()).toAbsolutePath().normalize();
+
+        if(!Files.exists(filePath)) throw new IllegalArgumentException("실제 파일을 찾을수 없습니다.");
+
+        try {
+            Resource resource = new UrlResource(filePath.toUri());
+
+            if(!resource.exists() || !resource.isReadable())throw new IllegalArgumentException("파일을 읽을수 없습니다.");
+
+            String contentType = fileInfo.getContentType();
+
+            if(contentType == null || contentType.isBlank()){
+                contentType = "application/octet-stream";
+            }
+
+            return new FileDownloadResponse(
+                    resource,
+                    fileInfo.getOriginalFileName(),
+                    contentType,
+                    fileInfo.getSize()
+            );
+        } catch (MalformedURLException e) {
+            throw new IllegalArgumentException("파일 경로가 올바르지 않습니다.", e);
+        }
+
     }
 
     public FileInfo save(MultipartFile file, FileType type){
