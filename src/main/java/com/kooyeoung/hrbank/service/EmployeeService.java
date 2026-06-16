@@ -5,6 +5,8 @@ import com.kooyeoung.hrbank.dto.command.employee.EmployeeUpdateCommand;
 import com.kooyeoung.hrbank.dto.command.history.EmployeeHistoryCreateCommand;
 import com.kooyeoung.hrbank.dto.repository.employee.EmployeeSearchCondition;
 import com.kooyeoung.hrbank.dto.repository.employee.EmployeeSummary;
+import com.kooyeoung.hrbank.dto.repository.employee.EmployeeTrendCondition;
+import com.kooyeoung.hrbank.dto.repository.employee.EmployeesCountCondition;
 import com.kooyeoung.hrbank.dto.request.employee.EmployeeCreateRequest;
 import com.kooyeoung.hrbank.dto.request.employee.EmployeeSearchRequest;
 import com.kooyeoung.hrbank.dto.request.employee.EmployeeUpdateRequest;
@@ -207,6 +209,25 @@ public class EmployeeService {
         // TODO 2차 수정 이벤트 관리 방식으로 변환 예정.
 
         repository.delete(foundEmployee);
+    }
+
+    public Long employeesCount(EmployeesCountCondition condition){
+
+        return repository.countEmployee(condition);
+    }
+
+    public void statsTrend(EmployeeTrendCondition condition){
+        /**
+         * [
+         *   {
+         *     "date": "2023-01-01", 날짜
+         *     "count": 150, 인원수
+         *     "change": 5, 증감수
+         *     "changeRate": 3.5 증감율
+         *   }
+         * ]
+         */
+
     }
 
     @NonNull

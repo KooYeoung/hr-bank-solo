@@ -1,6 +1,8 @@
 package com.kooyeoung.hrbank.repository;
 
+import com.kooyeoung.hrbank.dto.response.EmployeeDistributionCount;
 import com.kooyeoung.hrbank.entity.Employee;
+import com.kooyeoung.hrbank.entity.EmployeeStatus;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.EntityGraph;
@@ -8,6 +10,8 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
+import java.time.LocalDate;
+import java.util.List;
 import java.util.Optional;
 
 public interface EmployeeRepository extends JpaRepository<Employee, Long>, EmployeeRepositoryCustom {
@@ -32,4 +36,36 @@ public interface EmployeeRepository extends JpaRepository<Employee, Long>, Emplo
 
     @EntityGraph(attributePaths = {"department"})
     Page<Employee> findAllBy(Pageable pageable);
+
+    @Query("""
+        select e.hireDate
+        from Employee e
+        where e.hireDate < :toExclusive
+          and e.status <> :resignedStatus
+        order by e.hireDate asc
+    """)
+    List<LocalDate> findActiveHireDatesBefore(
+            LocalDate toExclusive,
+            EmployeeStatus resignedStatus
+    );
+
+    @Query("""
+        select new com.kooyeoung.hrbank.dto.response.EmployeeDistributionCount(d.name , count(e) )
+        from Employee e
+        join e.department d
+        where e.status = :status
+        group by d.name
+        order by (e) desc
+    """)
+    List<EmployeeDistributionCount> countGroupByDepartment(@Param("status") EmployeeStatus status);
+
+    @Query("""
+        select new com.kooyeoung.hrbank.dto.response.EmployeeDistributionCount( e.position , count(e) )
+        from Employee e
+        where e.status = :status
+        group by e.position
+        order by (e) desc
+    """)
+    List<EmployeeDistributionCount> countGroupByPosition(@Param("status") EmployeeStatus status);
+
 }

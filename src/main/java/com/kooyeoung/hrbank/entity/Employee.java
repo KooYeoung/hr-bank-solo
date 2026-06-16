@@ -58,7 +58,7 @@ public class Employee {
 
     public Employee(EmployeeCreateCommand command){
         this(command.department(), command.name(), command.email()
-                , command.position(), command.hireDate(), EmployeeStatus.EMPLOYED
+                , command.position(), command.hireDate(), EmployeeStatus.ACTIVE
                 , command.profileImage());
     }
 

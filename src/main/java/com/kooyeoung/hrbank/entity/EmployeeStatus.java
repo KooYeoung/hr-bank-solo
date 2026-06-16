@@ -4,7 +4,7 @@ import lombok.Getter;
 
 @Getter
 public enum EmployeeStatus {
-    EMPLOYED("재직중"),
+    ACTIVE("재직중"),
     ON_LEAVE("휴직중"),
     RESIGNED("퇴사");
 

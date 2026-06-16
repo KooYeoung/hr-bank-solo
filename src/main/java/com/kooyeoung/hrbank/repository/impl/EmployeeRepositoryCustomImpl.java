@@ -2,6 +2,7 @@ package com.kooyeoung.hrbank.repository.impl;
 
 import com.kooyeoung.hrbank.dto.repository.employee.EmployeeSearchCondition;
 import com.kooyeoung.hrbank.dto.repository.employee.EmployeeSummary;
+import com.kooyeoung.hrbank.dto.repository.employee.EmployeesCountCondition;
 import com.kooyeoung.hrbank.entity.EmployeeStatus;
 import com.kooyeoung.hrbank.repository.EmployeeRepositoryCustom;
 import com.querydsl.core.types.Order;
@@ -80,6 +81,17 @@ public class EmployeeRepositoryCustomImpl implements EmployeeRepositoryCustom {
                 )
                 .fetchOne();
         return employeeCount == null ? 0 : employeeCount;
+    }
+
+    @Override
+    public long countEmployee(EmployeesCountCondition condition) {
+        Long l = jpaQueryFactory.select(employee.id.count())
+                .from(employee)
+                .where(
+                        getEqEmployeeStatus(condition.status()),
+                        getHireDateFilter(condition.fromDate(), condition.toDate())
+                ).fetchOne();
+        return l == null ? 0L : l;
     }
 
     private OrderSpecifier<?> orderSpecifier(EmployeeSearchCondition condition) {
