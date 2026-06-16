@@ -1,0 +1,8 @@
+ALTER TABLE file_info
+DROP CONSTRAINT IF EXISTS chk_file_info_size;
+
+ALTER TABLE employee_number_sequence
+DROP CONSTRAINT IF EXISTS chk_employee_number_sequence_yyyy_mm_length;
+
+ALTER TABLE employee_number_sequence
+DROP CONSTRAINT IF EXISTS chk_employee_number_sequence_last_sequence;
