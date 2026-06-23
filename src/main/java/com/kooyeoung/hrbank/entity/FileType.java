@@ -5,7 +5,7 @@ import java.nio.file.Path;
 public enum FileType {
     PROFILE_IMAGE("profile-images"),
     BACKUP_EMPLOYEE_CSV("backups", "employee-csv"),
-    BACKUP_ERROR_LOG("backups","errors");
+    BACKUP_ERROR_LOG("backups", "errors");
 
     private final String[] directories;
 

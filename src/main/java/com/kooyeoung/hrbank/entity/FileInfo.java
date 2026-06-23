@@ -37,16 +37,16 @@ public class FileInfo {
 
     public FileInfo(
             String originalFileName
-    ,String storedFileName
-            ,String filePath
-            ,String contentType
-            ,Long size
-            ,FileType type){
-        this.originalFileName =originalFileName;
+            , String storedFileName
+            , String filePath
+            , String contentType
+            , Long size
+            , FileType type) {
+        this.originalFileName = originalFileName;
         this.storedFileName = storedFileName;
         this.filePath = filePath;
-        this.contentType =contentType;
-        this.size =size;
+        this.contentType = contentType;
+        this.size = size;
         this.type = type;
     }
 }

@@ -22,7 +22,7 @@ public class FileController {
     private final FileInfoService fileInfoService;
 
     @GetMapping("/{id}/download")
-    public ResponseEntity<Resource> download(@PathVariable Long id){
+    public ResponseEntity<Resource> download(@PathVariable Long id) {
         FileDownloadResponse download = fileInfoService.download(id);
 
         ContentDisposition attachmentDisposition = ContentDisposition.attachment()

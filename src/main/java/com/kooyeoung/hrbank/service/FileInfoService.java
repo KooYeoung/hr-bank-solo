@@ -38,28 +38,29 @@ public class FileInfoService {
 
         try {
             Files.createDirectories(rootPath);
-        }catch (IOException e){
+        } catch (IOException e) {
             throw new RuntimeException("업로드 디렉토리 생성 실패 : " + rootPath, e);
         }
     }
 
-    public FileDownloadResponse download(Long id){
+    public FileDownloadResponse download(Long id) {
         FileInfo fileInfo = repository.findById(id).orElseThrow(() -> new IllegalArgumentException("파일의 정보를 찾을수 없습니다."));
 
-        if(fileInfo.getType().equals(FileType.PROFILE_IMAGE)) throw new IllegalArgumentException("이미지 파일의 다운로드는 지원하지 않습니다.");
+        if (fileInfo.getType().equals(FileType.PROFILE_IMAGE))
+            throw new IllegalArgumentException("이미지 파일의 다운로드는 지원하지 않습니다.");
 
         Path filePath = Paths.get(fileInfo.getFilePath()).toAbsolutePath().normalize();
 
-        if(!Files.exists(filePath)) throw new IllegalArgumentException("실제 파일을 찾을수 없습니다.");
+        if (!Files.exists(filePath)) throw new IllegalArgumentException("실제 파일을 찾을수 없습니다.");
 
         try {
             Resource resource = new UrlResource(filePath.toUri());
 
-            if(!resource.exists() || !resource.isReadable())throw new IllegalArgumentException("파일을 읽을수 없습니다.");
+            if (!resource.exists() || !resource.isReadable()) throw new IllegalArgumentException("파일을 읽을수 없습니다.");
 
             String contentType = fileInfo.getContentType();
 
-            if(contentType == null || contentType.isBlank()){
+            if (contentType == null || contentType.isBlank()) {
                 contentType = "application/octet-stream";
             }
 
@@ -75,8 +76,8 @@ public class FileInfoService {
 
     }
 
-    public FileInfo save(MultipartFile file, FileType type){
-        if(file == null || file.isEmpty()) return null;
+    public FileInfo save(MultipartFile file, FileType type) {
+        if (file == null || file.isEmpty()) return null;
 
         String originalFilename = getCleanFileName(file.getOriginalFilename());
 
@@ -102,11 +103,11 @@ public class FileInfoService {
 
             FileInfo fileInfo = new FileInfo(
                     originalFilename
-                    ,storeFilename
-                    ,storePath.toString()
-                    ,contentType
-                    ,size
-                    ,type
+                    , storeFilename
+                    , storePath.toString()
+                    , contentType
+                    , size
+                    , type
             );
 
             return repository.save(fileInfo);
@@ -153,16 +154,17 @@ public class FileInfoService {
         throw new IllegalArgumentException("현재 지원하는 파일 형식이 아닙니다.");
     }
 
-    public void delete(Long id){
+    public void delete(Long id) {
         FileInfo fileInfo = repository.findById(id).orElseThrow(() -> new IllegalArgumentException("존재 하지 않는 파일입니다."));
-        if(!FileType.PROFILE_IMAGE.equals(fileInfo.getType())) throw new IllegalArgumentException("프로필 이미지 파일만 지울수 있습니다.");
+        if (!FileType.PROFILE_IMAGE.equals(fileInfo.getType()))
+            throw new IllegalArgumentException("프로필 이미지 파일만 지울수 있습니다.");
 
         Path path = Paths.get(fileInfo.getFilePath());
         try {
             Files.deleteIfExists(path);
             repository.delete(fileInfo);
         } catch (IOException e) {
-            throw new RuntimeException("파일 삭제 중 오류가 발생했습니다.",e);
+            throw new RuntimeException("파일 삭제 중 오류가 발생했습니다.", e);
         }
 
     }
