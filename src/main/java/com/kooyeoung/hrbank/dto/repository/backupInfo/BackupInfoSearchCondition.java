@@ -12,9 +12,9 @@ public record BackupInfoSearchCondition(
         String sortField,
         String cursor,
         Long idAfter,
-        boolean hasCursor,
-        boolean isDesc,
-        int size
+        Boolean hasCursor,
+        Boolean isDesc,
+        Integer size
 ) {
 
 }

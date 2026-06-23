@@ -13,9 +13,9 @@ public record EmployeeHistorySearchCondition(
         LocalDateTime atTo,
         String sortField,
         String cursor,
-        long idAfter,
-        boolean hasCursor,
-        boolean isDesc,
-        int size
+        Long idAfter,
+        Boolean hasCursor,
+        Boolean isDesc,
+        Integer size
 ) {
 }
