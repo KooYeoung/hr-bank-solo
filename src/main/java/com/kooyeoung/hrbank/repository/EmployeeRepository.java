@@ -51,21 +51,21 @@ public interface EmployeeRepository extends JpaRepository<Employee, Long>, Emplo
     );
 
     @Query("""
-                select new com.kooyeoung.hrbank.dto.response.EmployeeDistributionCount(d.name , count(e) )
+                select new com.kooyeoung.hrbank.dto.response.EmployeeDistributionCount(d.name , count(d.name) )
                 from Employee e
                 join e.department d
                 where e.status = :status
                 group by d.name
-                order by (e) desc
+                order by count(d.name)  desc
             """)
     List<EmployeeDistributionCount> countGroupByDepartment(@Param("status") EmployeeStatus status);
 
     @Query("""
-                select new com.kooyeoung.hrbank.dto.response.EmployeeDistributionCount( e.position , count(e) )
+                select new com.kooyeoung.hrbank.dto.response.EmployeeDistributionCount( e.position , count(e.position) )
                 from Employee e
                 where e.status = :status
                 group by e.position
-                order by (e) desc
+                order by count(e.position) desc
             """)
     List<EmployeeDistributionCount> countGroupByPosition(@Param("status") EmployeeStatus status);
 
