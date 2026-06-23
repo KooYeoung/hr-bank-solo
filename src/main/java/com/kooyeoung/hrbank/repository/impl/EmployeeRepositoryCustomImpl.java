@@ -71,6 +71,7 @@ public class EmployeeRepositoryCustomImpl implements EmployeeRepositoryCustom {
         Long employeeCount = jpaQueryFactory
                 .select(employee.id.count())
                 .from(employee)
+                .join(employee.department, department)
                 .where(
                         getNameOrEmailContainsIgnoreCase(condition.nameOrEmail()),
                         getStringPathContainsIgnoreCase(employee.employeeNumber, condition.employeeNumber()),
