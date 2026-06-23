@@ -18,7 +18,7 @@ import java.util.function.Function;
 @RequiredArgsConstructor
 @Slf4j
 public class EmployeeHistoryDetailService {
-    
+
     private final EmployeeHistoryDetailRepository repository;
 
     private static final List<PropertyMapper> PROPERTY_MAPPERS = List.of(
@@ -28,11 +28,11 @@ public class EmployeeHistoryDetailService {
             new PropertyMapper(EmployeeProperties.EMPLOYEE_NUMBER, EmployeeSnapshot::employeeNumber),
             new PropertyMapper(EmployeeProperties.POSITION, EmployeeSnapshot::position),
             new PropertyMapper(EmployeeProperties.HIRE_DATE, EmployeeSnapshot::hireDate),
-            new PropertyMapper(EmployeeProperties.EMPLOYEE_STATUS, EmployeeSnapshot::status)
+            new PropertyMapper(EmployeeProperties.EMPLOYEE_STATUS, EmployeeSnapshot::statusDescription)
     );
 
 
-    public void save(EmployeeHistoryDetailCommand command){
+    public void save(EmployeeHistoryDetailCommand command) {
         EmployeeSnapshot beforeSnapshot = command.beforeSnapshot();
         EmployeeSnapshot afterSnapshot = command.afterSnapshot();
         EmployeeHistory history = command.history();

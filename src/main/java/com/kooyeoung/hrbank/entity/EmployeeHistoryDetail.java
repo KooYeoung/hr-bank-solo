@@ -17,7 +17,9 @@ public class EmployeeHistoryDetail {
 
     @Enumerated(EnumType.STRING)
     private EmployeeProperties properties;
+
     private String beforeValue;
+
     private String afterValue;
 
     private EmployeeHistoryDetail(

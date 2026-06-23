@@ -7,4 +7,5 @@ import org.springframework.boot.context.properties.bind.DefaultValue;
 public record EmployeeNumberProperties(
         @DefaultValue("4")
         int sequenceWidth
-) { }
+) {
+}

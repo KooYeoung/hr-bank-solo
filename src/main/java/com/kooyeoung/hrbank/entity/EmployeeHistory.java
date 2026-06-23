@@ -15,21 +15,26 @@ public class EmployeeHistory {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
+
     @Enumerated(EnumType.STRING)
     private HistoryType type;
+
     private String employeeNumber;
+
     private String memo;
+
     private String ipAddress;
+
     @Getter
     private LocalDateTime createdAt;
 
     @OneToMany(mappedBy = "history")
     List<EmployeeHistoryDetail> details = new ArrayList<>();
 
-    public EmployeeHistory(HistoryType type, String employeeNumber, String memo, String ipAddress){
+    public EmployeeHistory(HistoryType type, String employeeNumber, String memo, String ipAddress) {
         this.type = type;
         this.employeeNumber = employeeNumber;
-        this.memo =memo;
+        this.memo = memo;
         this.ipAddress = ipAddress;
         this.createdAt = LocalDateTime.now();
     }

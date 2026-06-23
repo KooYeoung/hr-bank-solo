@@ -36,24 +36,24 @@ public class EmployeeHistoryRepositoryCustomImpl implements EmployeeHistoryRepos
                 .select(
                         Projections.constructor(
                                 EmployeeHistorySummary.class
-                                ,employeeHistory.id
-                                ,employeeHistory.type.stringValue()
-                                ,employeeHistory.memo
-                                ,employeeHistory.ipAddress
-                                ,employeeHistory.createdAt
+                                , employeeHistory.id
+                                , employeeHistory.type.stringValue()
+                                , employeeHistory.memo
+                                , employeeHistory.ipAddress
+                                , employeeHistory.createdAt
                         )
                 ).from(employeeHistory)
                 .where(
-                        getStringPathPredicate(employeeHistory.employeeNumber,condition.employeeNumber())
-                        ,getStringPathPredicate(employeeHistory.memo,condition.memo())
-                        ,getStringPathPredicate(employeeHistory.ipAddress,condition.ipAddress())
-                        ,getHistoryTypeEqPredicate(condition.type())
-                        ,getFilterCreatedAt(condition.atFrom(), condition.atTo())
-                        ,cursorCondition(condition)
+                        getStringPathPredicate(employeeHistory.employeeNumber, condition.employeeNumber())
+                        , getStringPathPredicate(employeeHistory.memo, condition.memo())
+                        , getStringPathPredicate(employeeHistory.ipAddress, condition.ipAddress())
+                        , getHistoryTypeEqPredicate(condition.type())
+                        , getFilterCreatedAt(condition.atFrom(), condition.atTo())
+                        , cursorCondition(condition)
                 )
                 .orderBy(
                         orderSpecifier(condition)
-                        ,idOrderSpecifier(condition)
+                        , idOrderSpecifier(condition)
                 )
                 .limit(condition.size() + 1)
                 .fetch();
@@ -62,7 +62,7 @@ public class EmployeeHistoryRepositoryCustomImpl implements EmployeeHistoryRepos
 
     private OrderSpecifier<?> orderSpecifier(EmployeeHistorySearchCondition condition) {
         Order order = condition.isDesc() ? Order.DESC : Order.ASC;
-        if("ipAddress".equals(condition.sortField())){
+        if ("ipAddress".equals(condition.sortField())) {
             return new OrderSpecifier<>(order, employeeHistory.ipAddress);
         }
         return new OrderSpecifier<>(order, employeeHistory.createdAt);
@@ -76,21 +76,21 @@ public class EmployeeHistoryRepositoryCustomImpl implements EmployeeHistoryRepos
     }
 
     private BooleanExpression getFilterCreatedAt(LocalDateTime atFrom, LocalDateTime atTo) {
-        if(atFrom ==null && atTo == null) return  null;
-        if(atFrom ==null ) return employeeHistory.createdAt.loe(atTo);
-        if(atTo ==null) return employeeHistory.createdAt.goe(atFrom);
+        if (atFrom == null && atTo == null) return null;
+        if (atFrom == null) return employeeHistory.createdAt.loe(atTo);
+        if (atTo == null) return employeeHistory.createdAt.goe(atFrom);
 
         return employeeHistory.createdAt.between(atFrom, atTo);
     }
 
-    private  BooleanExpression getHistoryTypeEqPredicate(String type) {
-       if(isBlank(type)) return null;
+    private BooleanExpression getHistoryTypeEqPredicate(HistoryType type) {
+        if (type == null) return null;
 
-       return employeeHistory.type.eq(HistoryType.valueOf(type));
+        return employeeHistory.type.eq(type);
     }
 
     private BooleanExpression getStringPathPredicate(StringPath path, String value) {
-        if(isBlank(value)) return null;
+        if (isBlank(value)) return null;
 
         return path.containsIgnoreCase(value);
     }
@@ -102,7 +102,7 @@ public class EmployeeHistoryRepositoryCustomImpl implements EmployeeHistoryRepos
 
     @Nullable
     private BooleanExpression cursorCondition(EmployeeHistorySearchCondition condition) {
-        if(!condition.hasCursor()){
+        if (!condition.hasCursor()) {
             return null;
         }
 
@@ -110,10 +110,10 @@ public class EmployeeHistoryRepositoryCustomImpl implements EmployeeHistoryRepos
         boolean desc = condition.isDesc();
         String cursor = condition.cursor();
 
-        if("at".equals(sortField)){
+        if ("at".equals(sortField)) {
             LocalDateTime localDate = LocalDateTime.parse(cursor);
 
-            if(desc){
+            if (desc) {
                 return employeeHistory.createdAt.lt(localDate)
                         .or(employeeHistory.createdAt.eq(localDate)
                                 .and(employeeHistory.id.lt(condition.idAfter()))
@@ -126,7 +126,7 @@ public class EmployeeHistoryRepositoryCustomImpl implements EmployeeHistoryRepos
         }
 
         StringPath path = employeeHistory.ipAddress;
-        if(desc){
+        if (desc) {
             return path.lt(cursor)
                     .or(path.eq(cursor)
                             .and(employeeHistory.id.lt(condition.idAfter())));
@@ -150,6 +150,6 @@ public class EmployeeHistoryRepositoryCustomImpl implements EmployeeHistoryRepos
                         , getFilterCreatedAt(condition.atFrom(), condition.atTo())
                 ).fetchOne();
 
-        return employeeHistoryCount == null ?  0 : employeeHistoryCount;
+        return employeeHistoryCount == null ? 0 : employeeHistoryCount;
     }
 }

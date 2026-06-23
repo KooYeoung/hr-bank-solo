@@ -5,22 +5,22 @@ import com.kooyeoung.hrbank.dto.repository.employeeHistory.EmployeeHistorySummar
 import java.time.LocalDateTime;
 
 public record ChangeLogDto(
-        Long id
-        ,String type
-        ,String employeeNumber
-        ,String memo
-        ,String ipAddress
-        ,LocalDateTime at
+        Long id,
+        String type,
+        String employeeNumber,
+        String memo,
+        String ipAddress,
+        LocalDateTime at
 ) {
 
-    public static ChangeLogDto from(EmployeeHistorySummary summary){
+    public static ChangeLogDto from(EmployeeHistorySummary summary) {
         return new ChangeLogDto(
-                summary.id()
-                , summary.type()
-                , summary.employeeNumber()
-                , summary.memo()
-                ,summary.ipAddress()
-                ,summary.at()
+                summary.id(),
+                summary.type(),
+                summary.employeeNumber(),
+                summary.memo(),
+                summary.ipAddress(),
+                summary.at()
         );
     }
 }

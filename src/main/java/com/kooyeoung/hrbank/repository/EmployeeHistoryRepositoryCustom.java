@@ -2,7 +2,6 @@ package com.kooyeoung.hrbank.repository;
 
 import com.kooyeoung.hrbank.dto.repository.employeeHistory.EmployeeHistorySearchCondition;
 import com.kooyeoung.hrbank.dto.repository.employeeHistory.EmployeeHistorySummary;
-import com.kooyeoung.hrbank.dto.response.ChangeLogDto;
 
 import java.util.List;
 

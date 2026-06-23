@@ -21,7 +21,7 @@ public class EmployeeHistoryController {
 
     @GetMapping
     public ResponseEntity<PageResponse<ChangeLogDto>> list(@ModelAttribute EmployeeHistorySearchRequest request){
-        PageResponse<ChangeLogDto> list = service.list(request);
+        PageResponse<ChangeLogDto> list = service.list(request.toCondition());
         return ResponseEntity.ok().body(list);
     }
 
@@ -33,7 +33,7 @@ public class EmployeeHistoryController {
 
     @GetMapping("/count")
     public ResponseEntity<Long> count(EmployeeHistoryEditCountRequest request){
-        Long editCountResult = service.editCount(request);
+        Long editCountResult = service.editCount(request.toCondition());
 
         return ResponseEntity.ok().body(editCountResult);
     }

@@ -1,5 +1,6 @@
 package com.kooyeoung.hrbank.dto.request.employeeHistory;
 
+import com.kooyeoung.hrbank.dto.repository.employeeHistory.EmployeeHistoryEditCountCondition;
 import org.springframework.format.annotation.DateTimeFormat;
 
 import java.time.LocalDateTime;
@@ -28,5 +29,12 @@ public record EmployeeHistoryEditCountRequest(
         if (fromDate.isAfter(toDate)) {
             throw new IllegalArgumentException("fromDate는 toDate보다 이후일 수 없습니다.");
         }
+    }
+
+    public EmployeeHistoryEditCountCondition toCondition(){
+        return new EmployeeHistoryEditCountCondition(
+                fromDate,
+                toDate
+        );
     }
 }

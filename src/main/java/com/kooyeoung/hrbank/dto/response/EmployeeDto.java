@@ -27,7 +27,7 @@ public record EmployeeDto(
                 snapshot.departmentName(),
                 snapshot.position(),
                 snapshot.hireDate(),
-                snapshot.status().name(),
+                snapshot.statusDescription(),
                 snapshot.profileImageId()
         );
     }

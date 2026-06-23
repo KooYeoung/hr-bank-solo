@@ -2,11 +2,9 @@ package com.kooyeoung.hrbank.service;
 
 import com.kooyeoung.hrbank.dto.command.history.EmployeeHistoryCreateCommand;
 import com.kooyeoung.hrbank.dto.command.historyDetail.EmployeeHistoryDetailCommand;
-import com.kooyeoung.hrbank.dto.repository.employee.EmployeeSummary;
+import com.kooyeoung.hrbank.dto.repository.employeeHistory.EmployeeHistoryEditCountCondition;
 import com.kooyeoung.hrbank.dto.repository.employeeHistory.EmployeeHistorySearchCondition;
 import com.kooyeoung.hrbank.dto.repository.employeeHistory.EmployeeHistorySummary;
-import com.kooyeoung.hrbank.dto.request.employeeHistory.EmployeeHistoryEditCountRequest;
-import com.kooyeoung.hrbank.dto.request.employeeHistory.EmployeeHistorySearchRequest;
 import com.kooyeoung.hrbank.dto.response.ChangeLogDetailDto;
 import com.kooyeoung.hrbank.dto.response.ChangeLogDetailRowDto;
 import com.kooyeoung.hrbank.dto.response.ChangeLogDto;
@@ -15,7 +13,6 @@ import com.kooyeoung.hrbank.entity.EmployeeHistory;
 import com.kooyeoung.hrbank.repository.EmployeeHistoryRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.data.domain.Page;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -33,44 +30,29 @@ public class EmployeeHistoryService {
     private final EmployeeHistoryDetailService historyDetailService;
 
     @Transactional
-    public void save(EmployeeHistoryCreateCommand command){
+    public void save(EmployeeHistoryCreateCommand command) {
         String clientIp = ipAddressService.getClientIp();
 
-        EmployeeHistory history = new EmployeeHistory(command.type(),command.getEmployeeNumber(), command.memo(), clientIp);
+        EmployeeHistory history = new EmployeeHistory(command.type(), command.getEmployeeNumber(), command.memo(), clientIp);
 
         repository.save(history);
 
         historyDetailService.save(
                 new EmployeeHistoryDetailCommand(command.beforeSnapshot()
-                ,command.afterSnapshot()
-                ,history)
+                        , command.afterSnapshot()
+                        , history)
         );
 
     }
 
-    public PageResponse<ChangeLogDto> list(EmployeeHistorySearchRequest request){
-
-        EmployeeHistorySearchCondition condition = new EmployeeHistorySearchCondition(
-                request.employeeNumber()
-                ,request.getTypeOrDefault()
-                ,request.memo()
-                ,request.ipAddress()
-                ,request.atFrom()
-                ,request.atTo()
-                ,request.sortField()
-                ,request.cursor()
-                ,request.idAfter()
-                ,request.hasCursor()
-                ,request.isDesc()
-                ,request.getSizeOrDefault()
-        );
+    public PageResponse<ChangeLogDto> list(EmployeeHistorySearchCondition condition) {
 
         int size = condition.size();
         List<EmployeeHistorySummary> employeeHistorySummaries = repository.searchEmployeeHistory(condition);
 
-        boolean hasNext = employeeHistorySummaries.size() > size ;
+        boolean hasNext = employeeHistorySummaries.size() > size;
 
-        List<EmployeeHistorySummary> pageContent = hasNext? employeeHistorySummaries.subList(0,size) : employeeHistorySummaries;
+        List<EmployeeHistorySummary> pageContent = hasNext ? employeeHistorySummaries.subList(0, size) : employeeHistorySummaries;
 
         List<ChangeLogDto> content = pageContent.stream()
                 .map(ChangeLogDto::from)
@@ -78,7 +60,7 @@ public class EmployeeHistoryService {
 
         String nextCursor = null;
         Long nextIdAfter = null;
-        if(hasNext && !pageContent.isEmpty()) {
+        if (hasNext && !pageContent.isEmpty()) {
             EmployeeHistorySummary last = pageContent.get(pageContent.size() - 1);
 
             nextCursor = getNextCursor(condition.sortField(), last);
@@ -89,35 +71,34 @@ public class EmployeeHistoryService {
 
         return new PageResponse<>(
                 content
-                ,nextCursor
-                ,nextIdAfter
-                ,size
-                ,totalCounts
-                ,hasNext
+                , nextCursor
+                , nextIdAfter
+                , size
+                , totalCounts
+                , hasNext
         );
     }
 
     private String getNextCursor(String sortFiled, EmployeeHistorySummary last) {
-        if("at".equals(sortFiled)){
+        if ("at".equals(sortFiled)) {
             return last.at().toString();
         }
 
         return last.ipAddress();
     }
 
-    public ChangeLogDetailDto detail(Long id){
+    public ChangeLogDetailDto detail(Long id) {
 
         List<ChangeLogDetailRowDto> rows = repository.findDetailRowsById(id);
 
         return ChangeLogDetailDto.fromRows(rows);
     }
 
-    public Long editCount(EmployeeHistoryEditCountRequest request){
-        Optional<Long> editCount = repository.countByCreatedAtBetween(request.fromDate(), request.toDate());
+    public Long editCount(EmployeeHistoryEditCountCondition condition) {
+        Optional<Long> editCount = repository.countByCreatedAtBetween(condition.fromDate(), condition.toDate());
 
         return editCount.isPresent() ? editCount.get() : 0;
     }
-
 
 
 }
