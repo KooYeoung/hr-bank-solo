@@ -61,8 +61,7 @@ public class BackupInfoRepositoryCustomImpl implements BackupInfoRepositoryCusto
                 .where(
                         getStatusExpression(condition.status()),
                         getBetween(condition.startAtFrom(), condition.startAtTo()),
-                        getContainsedIgnoreCase(condition.worker()),
-                        cursorCondition(condition)
+                        getContainsedIgnoreCase(condition.worker())
                 )
                 .fetchOne();
 
@@ -72,10 +71,7 @@ public class BackupInfoRepositoryCustomImpl implements BackupInfoRepositoryCusto
     private OrderSpecifier<?> orderSpecifier(BackupInfoSearchCondition condition) {
         Order order = condition.isDesc() ? Order.DESC : Order.ASC;
         if ("endedAt".equals(condition.sortField())) {
-            return new OrderSpecifier<>(order, backupInfo.endedAt);
-        }
-        if ("status".equals(condition.sortField())) {
-            return new OrderSpecifier<>(order, backupInfo.status);
+            return new OrderSpecifier<>(order, backupInfo.endedAt, OrderSpecifier.NullHandling.NullsLast);
         }
         return new OrderSpecifier<>(order, backupInfo.startedAt);
     }
@@ -103,12 +99,12 @@ public class BackupInfoRepositoryCustomImpl implements BackupInfoRepositoryCusto
         return backupInfo.startedAt.between(from, to);
     }
 
-    private BooleanExpression getStatusExpression(String staus) {
-        if (isBlank(staus)) {
+    private BooleanExpression getStatusExpression(BackupStatus staus) {
+        if (staus == null){
             return null;
         }
 
-        return backupInfo.status.eq(BackupStatus.valueOf(staus));
+        return backupInfo.status.eq(staus);
     }
 
     @Nullable
@@ -120,10 +116,6 @@ public class BackupInfoRepositoryCustomImpl implements BackupInfoRepositoryCusto
         String sortField = condition.sortField();
         boolean desc = condition.isDesc();
         String cursor = condition.cursor();
-
-        if("status".equals(sortField)) {
-            return null;
-        }
 
         LocalDateTime localDate = LocalDateTime.parse(cursor);
         if ("startedAt".equals(sortField)) {

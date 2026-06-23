@@ -21,18 +21,18 @@ import java.time.LocalDateTime;
 @Service
 @Transactional(propagation = Propagation.REQUIRES_NEW)
 public class BackupInfoCommandService {
-    private final BackupInfoRepository repository;
+    private final BackupInfoRepository backupInfoRepository;
 
     public BackupInfo skip(String worker){
         BackupInfo currentSkippedBackup = BackupInfo.skippedBackupInfo(worker, LocalDateTime.now());
 
-       return repository.save(currentSkippedBackup);
+       return backupInfoRepository.save(currentSkippedBackup);
 
     }
 
     public BackupInfo createInProgress(String worker){
         BackupInfo inProgressBackup = BackupInfo.inProgressBackupInfo(worker, LocalDateTime.now());
-        return repository.save(inProgressBackup);
+        return backupInfoRepository.save(inProgressBackup);
 
     }
 
@@ -52,7 +52,7 @@ public class BackupInfoCommandService {
 
     @NonNull
     private BackupInfo getBackupInfoById(Long backupId) {
-        return repository.findById(backupId)
+        return backupInfoRepository.findById(backupId)
                 .orElseThrow(() -> new IllegalArgumentException("백업 이력을 찾을수 없습니다."));
     }
 }

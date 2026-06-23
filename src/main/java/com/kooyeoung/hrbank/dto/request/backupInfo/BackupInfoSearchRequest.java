@@ -6,6 +6,7 @@ import com.kooyeoung.hrbank.entity.BackupStatus;
 import java.time.LocalDateTime;
 import java.util.Arrays;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 public record BackupInfoSearchRequest(
         // 부서 이름 또는 설명
@@ -25,23 +26,32 @@ public record BackupInfoSearchRequest(
         , String sortDirection
 ) {
 
-    private final static Set<String> SORT_FIELDS = Set.of("startedAt" , "endedAt", "status");
-    private final static Set<String> SORT_DIRECTIONS = Set.of("asc" , "desc");
-    private final static Set<String> AVAILABLE_STATUS = Set.of(Arrays.toString(BackupStatus.values()));
-
+    private static final String DEFAULT_DIRECTION = "desc";
+    private static final String DEFAULT_SORT_FIELD = "startedAt";
+    private static final Set<String> SORT_FIELDS = Set.of(DEFAULT_SORT_FIELD, "endedAt");
+    private static final Set<String> SORT_DIRECTIONS = Set.of("asc" , DEFAULT_DIRECTION);
 
     public int getSizeOrDefault(){
         return size == null || size <= 0  ? 10 : size;
     }
 
     public String getSortFieldOrDefault(){
-        return sortField == null || sortField.isBlank() || !SORT_FIELDS.contains(sortField)
-        ? "startedAt" : sortField;
+        if( sortField == null || sortField.isBlank()){
+            return DEFAULT_SORT_FIELD;
+        }
+
+        String normalizedSortField = sortField.trim();
+
+        return  !SORT_FIELDS.contains(normalizedSortField) ? DEFAULT_SORT_FIELD : normalizedSortField;
     }
 
     public String getSortDirectionOrDefault(){
-        return sortDirection == null || sortDirection.isBlank() || !SORT_DIRECTIONS.contains(sortDirection.toLowerCase())
-                ? "desc" : sortDirection;
+        if (sortDirection == null || sortDirection.isBlank()) return DEFAULT_DIRECTION;
+
+        String normalizedSortDirection = sortDirection.trim().toLowerCase();
+
+        return  !SORT_DIRECTIONS.contains(normalizedSortDirection)
+                ? DEFAULT_DIRECTION : normalizedSortDirection;
     }
 
     public boolean isDesc(){
@@ -52,22 +62,24 @@ public record BackupInfoSearchRequest(
         return idAfter !=null && cursor !=null && !cursor.isBlank();
     }
 
-    public String getStatusOrDefault(){
-        return AVAILABLE_STATUS.contains(status) ? status : "";
+    public BackupStatus getStatusOrDefault(){
+        if(status == null || status.isBlank()) return null;
+
+        return BackupStatus.getBackupStatus(status);
     }
 
-    public static BackupInfoSearchCondition from(BackupInfoSearchRequest request){
+    public BackupInfoSearchCondition toCondition(){
         return new BackupInfoSearchCondition(
-                request.worker,
-                request.status,
-                request.startAtFrom,
-                request.startAtTo,
-                request.getSortFieldOrDefault(),
-                request.cursor,
-                request.idAfter,
-                request.hasCursor(),
-                request.isDesc(),
-                request.getSizeOrDefault()
+                worker,
+                getStatusOrDefault(),
+                startAtFrom,
+                startAtTo,
+                getSortFieldOrDefault(),
+                cursor,
+                idAfter,
+                hasCursor(),
+                isDesc(),
+                getSizeOrDefault()
         );
     }
 }

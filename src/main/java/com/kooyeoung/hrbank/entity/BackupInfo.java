@@ -7,18 +7,23 @@ import lombok.NoArgsConstructor;
 
 import java.time.LocalDateTime;
 
-@Getter
+
 @Entity
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class BackupInfo {
 
+    @Getter
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
+    @Getter
     private String worker;
+    @Getter
     private LocalDateTime startedAt;
+    @Getter
     private LocalDateTime endedAt;
+    @Getter
     @Enumerated(EnumType.STRING)
     private BackupStatus status;
     @ManyToOne(fetch = FetchType.LAZY)
@@ -49,5 +54,10 @@ public class BackupInfo {
         this.backupFile = logFile;
         this.status = BackupStatus.FAILED;
         this.endedAt = LocalDateTime.now();
+    }
+
+    public Long getBackupFileId(){
+        if(backupFile == null ) return null;
+        return backupFile.getId();
     }
 }

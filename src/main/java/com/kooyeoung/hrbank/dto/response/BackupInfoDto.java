@@ -32,7 +32,7 @@ public record BackupInfoDto(
                 backupInfo.getStartedAt(),
                 backupInfo.getEndedAt(),
                 backupInfo.getStatus().getLabel(),
-                backupInfo.getBackupFile().getId()
+                backupInfo.getBackupFileId()
         );
     }
 }

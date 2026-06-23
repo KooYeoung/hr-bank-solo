@@ -28,7 +28,6 @@ import java.nio.file.Files;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
-import java.util.Optional;
 
 @Service
 @RequiredArgsConstructor
@@ -42,7 +41,12 @@ public class BackupService {
     private final FileInfoService fileInfoService;
     private final BackupInfoCommandService backupInfoCommandService;
 
-    public BackupInfoDto save(String batchWorker){
+    public BackupInfoDto save() {
+
+        return save(null);
+    }
+
+    public BackupInfoDto save(String batchWorker) {
 
         String worker = resolveWorker(batchWorker);
 
@@ -69,7 +73,13 @@ public class BackupService {
         } catch (Exception e) {
             log.error("직원 데이터 백업 실패", e);
 
-            FileInfo logFile = createBackupErrorLog(e);
+            FileInfo logFile = null;
+
+            try {
+                logFile = createBackupErrorLog(e);
+            } catch (Exception logException) {
+                log.error("백업 실패 로그 파일 생성 실패", logException);
+            }
 
             BackupInfo fail = backupInfoCommandService.fail(backupInfo.getId(), logFile);
             return BackupInfoDto.from(fail);
@@ -78,22 +88,22 @@ public class BackupService {
     }
 
     @Transactional(readOnly = true)
-    public PageResponse<BackupInfoDto> list(BackupInfoSearchCondition condition){
+    public PageResponse<BackupInfoDto> list(BackupInfoSearchCondition condition) {
 
         int size = condition.size();
-        List<BackupInfoSummery> backupInfoSummeries = backupInfoRepository.searchBackupInfo(condition);
-        boolean hasNext = backupInfoSummeries.size() > size;
+        List<BackupInfoSummery> backupInfoSummaries = backupInfoRepository.searchBackupInfo(condition);
+        boolean hasNext = backupInfoSummaries.size() > size;
 
-        List<BackupInfoSummery> pageContent = hasNext ? backupInfoSummeries.subList(0,size) : backupInfoSummeries;
+        List<BackupInfoSummery> pageContent = hasNext ? backupInfoSummaries.subList(0, size) : backupInfoSummaries;
 
         List<BackupInfoDto> content = pageContent.stream()
                 .map(BackupInfoDto::from)
                 .toList();
 
-        String nextCursor =null;
+        String nextCursor = null;
         Long nextIdAfter = null;
 
-        if(hasNext && !pageContent.isEmpty()){
+        if (hasNext && !pageContent.isEmpty()) {
             BackupInfoSummery last = pageContent.get(pageContent.size() - 1);
             nextCursor = getNextCursor(condition.sortField(), last);
             nextIdAfter = last.id();
@@ -112,21 +122,22 @@ public class BackupService {
     }
 
     @Transactional(readOnly = true)
-    public BackupInfoDto getLatestFrom(String status){
-        BackupStatus backupStatus = BackupStatus.valueOf(status);
+    public BackupInfoDto getLatestFrom(BackupStatus status) {
 
         BackupInfo backupInfo = backupInfoRepository
-                .findTopByStatusOrderByStartedAtDesc(backupStatus)
-                .orElseThrow(() -> new IllegalArgumentException(backupStatus.getLabel() + "의 백업정보가 존재하지 않습니다."));
+                .findTopByStatusOrderByStartedAtDesc(status)
+                .orElseThrow(() -> new IllegalArgumentException(status.getLabel() + "의 백업정보가 존재하지 않습니다."));
 
         return BackupInfoDto.from(backupInfo);
     }
 
-    private String getNextCursor(String sortFiled, BackupInfoSummery last) {
-        if("startedAt".equals(sortFiled)){
-            return last.startedAt().toString();
+    private String getNextCursor(String sortField, BackupInfoSummery last) {
+
+        if ("endedAt".equals(sortField)) {
+            return last.endedAt() == null ? null : last.endedAt().toString();
         }
-        return last.endedAt().toString();
+
+        return last.startedAt().toString();
     }
 
     private String resolveWorker(String batchWorker) {
@@ -148,7 +159,6 @@ public class BackupService {
         if (lastBackupStartedAt == null) {
             return true;
         }
-
 
         return lastHistoryCreatedAt.isAfter(lastBackupStartedAt);
     }
