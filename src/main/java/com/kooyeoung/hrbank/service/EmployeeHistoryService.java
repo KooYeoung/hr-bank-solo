@@ -10,6 +10,7 @@ import com.kooyeoung.hrbank.dto.response.ChangeLogDetailRowDto;
 import com.kooyeoung.hrbank.dto.response.ChangeLogDto;
 import com.kooyeoung.hrbank.dto.response.PageResponse;
 import com.kooyeoung.hrbank.entity.EmployeeHistory;
+import com.kooyeoung.hrbank.exception.employeeHistory.EmployeeHistoryNotFoundException;
 import com.kooyeoung.hrbank.repository.EmployeeHistoryRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -33,14 +34,21 @@ public class EmployeeHistoryService {
     public void save(EmployeeHistoryCreateCommand command) {
         String clientIp = ipAddressService.getClientIp();
 
-        EmployeeHistory history = new EmployeeHistory(command.type(), command.getEmployeeNumber(), command.memo(), clientIp);
+        EmployeeHistory history = new EmployeeHistory(
+                command.type(),
+                command.getEmployeeNumber(),
+                command.memo(),
+                clientIp
+        );
 
         repository.save(history);
 
         historyDetailService.save(
-                new EmployeeHistoryDetailCommand(command.beforeSnapshot()
-                        , command.afterSnapshot()
-                        , history)
+                new EmployeeHistoryDetailCommand(
+                        command.beforeSnapshot(),
+                        command.afterSnapshot(),
+                        history
+                )
         );
 
     }
@@ -70,12 +78,12 @@ public class EmployeeHistoryService {
         long totalCounts = repository.countEmployeeHistory(condition);
 
         return new PageResponse<>(
-                content
-                , nextCursor
-                , nextIdAfter
-                , size
-                , totalCounts
-                , hasNext
+                content,
+                nextCursor,
+                nextIdAfter,
+                size,
+                totalCounts,
+                hasNext
         );
     }
 
@@ -88,6 +96,9 @@ public class EmployeeHistoryService {
     }
 
     public ChangeLogDetailDto detail(Long id) {
+
+        repository.findById(id)
+                .orElseThrow(()-> new EmployeeHistoryNotFoundException(id));
 
         List<ChangeLogDetailRowDto> rows = repository.findDetailRowsById(id);
 

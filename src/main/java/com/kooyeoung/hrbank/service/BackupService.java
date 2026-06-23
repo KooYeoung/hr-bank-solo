@@ -6,6 +6,7 @@ import com.kooyeoung.hrbank.dto.response.BackupInfoDto;
 import com.kooyeoung.hrbank.dto.response.PageResponse;
 import com.kooyeoung.hrbank.entity.*;
 import com.kooyeoung.hrbank.entity.snapshot.EmployeeSnapshot;
+import com.kooyeoung.hrbank.exception.backupInfo.BackupInfoNotFoundException;
 import com.kooyeoung.hrbank.repository.BackupInfoRepository;
 import com.kooyeoung.hrbank.repository.EmployeeHistoryRepository;
 import com.kooyeoung.hrbank.repository.EmployeeRepository;
@@ -126,7 +127,7 @@ public class BackupService {
 
         BackupInfo backupInfo = backupInfoRepository
                 .findTopByStatusOrderByStartedAtDesc(status)
-                .orElseThrow(() -> new IllegalArgumentException(status.getLabel() + "의 백업정보가 존재하지 않습니다."));
+                .orElseThrow(() -> new BackupInfoNotFoundException(status));
 
         return BackupInfoDto.from(backupInfo);
     }

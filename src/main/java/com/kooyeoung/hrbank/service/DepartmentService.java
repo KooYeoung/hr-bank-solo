@@ -7,6 +7,9 @@ import com.kooyeoung.hrbank.dto.repository.department.DepartmentSummary;
 import com.kooyeoung.hrbank.dto.response.DepartmentDto;
 import com.kooyeoung.hrbank.dto.response.PageResponse;
 import com.kooyeoung.hrbank.entity.Department;
+import com.kooyeoung.hrbank.exception.department.DepartmentHasEmployeesException;
+import com.kooyeoung.hrbank.exception.department.DepartmentNameAlreadyExistsException;
+import com.kooyeoung.hrbank.exception.department.DepartmentNotFoundException;
 import com.kooyeoung.hrbank.repository.DepartmentRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -51,12 +54,12 @@ public class DepartmentService {
     @NonNull
     private Department getDepartmentById(Long id) {
         return departmentRepository.findById(id)
-                .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 부서 입니다."));
+                .orElseThrow(() -> new DepartmentNotFoundException(id));
     }
 
     public DepartmentDto findById(Long id) {
         DepartmentSummary summaryResult = departmentRepository.findSummaryById(id)
-                .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 부서 입니다."));
+                .orElseThrow(() -> new DepartmentNotFoundException(id));
 
         return DepartmentDto.from(summaryResult);
     }
@@ -66,7 +69,7 @@ public class DepartmentService {
         Department department = getDepartmentById(id);
 
         if (employeeReader.existsByDepartmentId(id))
-            throw new IllegalArgumentException("소속된 직원이 없는 경우에만 부서를 삭제할 수 있습니다.");
+            throw new DepartmentHasEmployeesException(id);
 
         departmentRepository.delete(department);
     }
@@ -115,7 +118,8 @@ public class DepartmentService {
     }
 
     private void existByNameThrow(String name) {
-        if (departmentRepository.existsByName(name)) throw new IllegalArgumentException("이미 존재하는 부서명칭 입니다.");
+        if (departmentRepository.existsByName(name))
+            throw new DepartmentNameAlreadyExistsException(name);
     }
 
 }

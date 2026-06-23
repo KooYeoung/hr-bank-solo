@@ -2,6 +2,7 @@ package com.kooyeoung.hrbank.service;
 
 import com.kooyeoung.hrbank.entity.BackupInfo;
 import com.kooyeoung.hrbank.entity.FileInfo;
+import com.kooyeoung.hrbank.exception.backupInfo.BackupInfoNotFoundException;
 import com.kooyeoung.hrbank.repository.BackupInfoRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -53,6 +54,6 @@ public class BackupInfoCommandService {
     @NonNull
     private BackupInfo getBackupInfoById(Long backupId) {
         return backupInfoRepository.findById(backupId)
-                .orElseThrow(() -> new IllegalArgumentException("백업 이력을 찾을수 없습니다."));
+                .orElseThrow(() -> new BackupInfoNotFoundException(backupId));
     }
 }

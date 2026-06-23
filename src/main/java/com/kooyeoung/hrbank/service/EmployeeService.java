@@ -13,6 +13,8 @@ import com.kooyeoung.hrbank.entity.Employee;
 import com.kooyeoung.hrbank.entity.FileInfo;
 import com.kooyeoung.hrbank.entity.FileType;
 import com.kooyeoung.hrbank.entity.snapshot.EmployeeSnapshot;
+import com.kooyeoung.hrbank.exception.employee.EmployeeEmailAlreadyExistsException;
+import com.kooyeoung.hrbank.exception.employee.EmployeeNotFoundException;
 import com.kooyeoung.hrbank.repository.EmployeeRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -68,13 +70,12 @@ public class EmployeeService {
 
     private void validateEmailUniqueness(String email) {
         boolean emailExists = repository.existsByEmail(email);
-        if (emailExists) throw new IllegalArgumentException("이미 존재하는 이메일 입니다.");
+        if (emailExists) throw new EmployeeEmailAlreadyExistsException(email);
     }
 
     public EmployeeDto detail(Long id) {
 
-        Employee employee = repository.findDetailById(id)
-                .orElseThrow(() -> new IllegalArgumentException("존재 하지 않는 사원 입니다."));
+        Employee employee = getEmployeeDetailOrThrow(id);
 
         EmployeeSnapshot snapshot = employee.snapshot();
 
@@ -107,12 +108,12 @@ public class EmployeeService {
         long totalCounts = repository.countEmployee(condition);
 
         return new PageResponse<>(
-                content
-                , nextCursor
-                , nextIdAfter
-                , size
-                , totalCounts
-                , hasNext
+                content,
+                nextCursor,
+                nextIdAfter,
+                size,
+                totalCounts,
+                hasNext
         );
 
     }
@@ -197,7 +198,7 @@ public class EmployeeService {
     @NonNull
     private Employee getEmployeeDetailOrThrow(Long id) {
         return repository.findDetailById(id)
-                .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 사원입니다."));
+                .orElseThrow(() -> new EmployeeNotFoundException(id));
     }
 
 }

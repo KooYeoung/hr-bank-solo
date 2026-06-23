@@ -3,6 +3,8 @@ package com.kooyeoung.hrbank.service;
 import com.kooyeoung.hrbank.dto.response.FileDownloadResponse;
 import com.kooyeoung.hrbank.entity.FileInfo;
 import com.kooyeoung.hrbank.entity.FileType;
+import com.kooyeoung.hrbank.exception.CustomInternalServerException;
+import com.kooyeoung.hrbank.exception.fileInfo.*;
 import com.kooyeoung.hrbank.repository.FileInfoRepository;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
@@ -39,24 +41,24 @@ public class FileInfoService {
         try {
             Files.createDirectories(rootPath);
         } catch (IOException e) {
-            throw new RuntimeException("업로드 디렉토리 생성 실패 : " + rootPath, e);
+            throw new CustomInternalServerException("업로드 디렉토리 생성 실패 : " + rootPath, e);
         }
     }
 
     public FileDownloadResponse download(Long id) {
-        FileInfo fileInfo = repository.findById(id).orElseThrow(() -> new IllegalArgumentException("파일의 정보를 찾을수 없습니다."));
+        FileInfo fileInfo = getFileInfoById(id);
 
         if (fileInfo.getType().equals(FileType.PROFILE_IMAGE))
-            throw new IllegalArgumentException("이미지 파일의 다운로드는 지원하지 않습니다.");
+            throw new FileDownloadNotAllowedException();
 
         Path filePath = Paths.get(fileInfo.getFilePath()).toAbsolutePath().normalize();
 
-        if (!Files.exists(filePath)) throw new IllegalArgumentException("실제 파일을 찾을수 없습니다.");
+        if (!Files.exists(filePath)) throw new CustomInternalServerException("실제 파일을 찾을수 없습니다.");
 
         try {
             Resource resource = new UrlResource(filePath.toUri());
 
-            if (!resource.exists() || !resource.isReadable()) throw new IllegalArgumentException("파일을 읽을수 없습니다.");
+            if (!resource.exists() || !resource.isReadable()) throw new CustomInternalServerException("파일을 읽을수 없습니다.");
 
             String contentType = fileInfo.getContentType();
 
@@ -71,7 +73,7 @@ public class FileInfoService {
                     fileInfo.getSize()
             );
         } catch (MalformedURLException e) {
-            throw new IllegalArgumentException("파일 경로가 올바르지 않습니다.", e);
+            throw new CustomInternalServerException("파일 경로가 올바르지 않습니다.", e);
         }
 
     }
@@ -112,7 +114,7 @@ public class FileInfoService {
 
             return repository.save(fileInfo);
         } catch (IOException e) {
-            throw new IllegalStateException("파일 저장 중 오류가 발생했습니다.", e);
+            throw new CustomInternalServerException("파일 저장 중 오류가 발생했습니다.", e);
         }
 
     }
@@ -120,9 +122,8 @@ public class FileInfoService {
     @NonNull
     private String getCleanFileName(String filename) {
 
-
         if (filename == null || filename.isBlank()) {
-            throw new IllegalArgumentException("파일명이 존재하지 않습니다.");
+            throw new InvalidFileNameException();
         }
 
         filename = StringUtils.cleanPath(filename);
@@ -132,41 +133,47 @@ public class FileInfoService {
     private void validateFileType(FileType type, String extension) {
         if (FileType.PROFILE_IMAGE.equals(type)) {
             if (!AVAILABLE_IMAGE_EXTENSIONS.contains(extension)) {
-                throw new IllegalArgumentException("이미지 파일 형식이 아닙니다.");
+                throw new UnsupportedFileTypeException("이미지 파일 형식이 아닙니다.");
             }
             return;
         }
 
         if (FileType.BACKUP_EMPLOYEE_CSV.equals(type)) {
             if (!".csv".equals(extension)) {
-                throw new IllegalArgumentException("csv 파일 형식이 아닙니다.");
+                throw new UnsupportedFileTypeException("csv 파일 형식이 아닙니다.");
             }
             return;
         }
 
         if (FileType.BACKUP_ERROR_LOG.equals(type)) {
             if (!".log".equals(extension) && !".txt".equals(extension)) {
-                throw new IllegalArgumentException("로그 파일 형식이 아닙니다.");
+                throw new UnsupportedFileTypeException("로그 파일 형식이 아닙니다.");
             }
             return;
         }
 
-        throw new IllegalArgumentException("현재 지원하는 파일 형식이 아닙니다.");
+        throw new UnsupportedFileTypeException("현재 지원하는 파일 형식이 아닙니다.");
     }
 
     public void delete(Long id) {
-        FileInfo fileInfo = repository.findById(id).orElseThrow(() -> new IllegalArgumentException("존재 하지 않는 파일입니다."));
+        FileInfo fileInfo = getFileInfoById(id);
+
         if (!FileType.PROFILE_IMAGE.equals(fileInfo.getType()))
-            throw new IllegalArgumentException("프로필 이미지 파일만 지울수 있습니다.");
+            throw new FileDeleteNotAllowedException();
 
         Path path = Paths.get(fileInfo.getFilePath());
         try {
             Files.deleteIfExists(path);
             repository.delete(fileInfo);
         } catch (IOException e) {
-            throw new RuntimeException("파일 삭제 중 오류가 발생했습니다.", e);
+            throw new CustomInternalServerException("파일 삭제 중 오류가 발생했습니다.", e);
         }
 
+    }
+
+    @NonNull
+    private FileInfo getFileInfoById(Long id) {
+        return repository.findById(id).orElseThrow(() -> new FileInfoNotFoundException(id));
     }
 
     public FileInfo saveGeneratedFile(
@@ -213,7 +220,7 @@ public class FileInfoService {
 
         } catch (IOException e) {
             deleteQuietly(storePath);
-            throw new IllegalStateException("파일 저장 중 오류가 발생했습니다.", e);
+            throw new CustomInternalServerException("파일 저장 중 오류가 발생했습니다.", e);
         } catch (RuntimeException e) {
             deleteQuietly(storePath);
             throw e;
