@@ -48,9 +48,6 @@ public class FileInfoService {
     public FileDownloadResponse download(Long id) {
         FileInfo fileInfo = getFileInfoById(id);
 
-        if (fileInfo.getType().equals(FileType.PROFILE_IMAGE))
-            throw new FileDownloadNotAllowedException();
-
         Path filePath = Paths.get(fileInfo.getFilePath()).toAbsolutePath().normalize();
 
         if (!Files.exists(filePath)) throw new CustomInternalServerException("실제 파일을 찾을수 없습니다.");
