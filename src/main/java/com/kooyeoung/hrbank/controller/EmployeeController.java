@@ -32,17 +32,17 @@ public class EmployeeController {
     }
 
     @PostMapping
-    public ResponseEntity<EmployeeDto> create(@Valid @RequestPart EmployeeCreateRequest request
+    public ResponseEntity<EmployeeDto> create(@Valid @RequestPart EmployeeCreateRequest employee
     , @RequestPart(required = false) MultipartFile profile){
-        EmployeeDto employeeDto = service.create(request.toCommand(), request.departmentId(), profile, request.memo());
+        EmployeeDto employeeDto = service.create(employee.toCommand(), employee.departmentId(), profile, employee.memo());
         return ResponseEntity.ok().body(employeeDto);
     }
 
     @PatchMapping("/{employeeId}")
-    public ResponseEntity<EmployeeDto> update(@PathVariable Long employeeId, @Valid @RequestPart EmployeeUpdateRequest request
+    public ResponseEntity<EmployeeDto> update(@PathVariable Long employeeId, @Valid @RequestPart EmployeeUpdateRequest employee
                                               ,@RequestPart(required = false) MultipartFile profile){
 
-        EmployeeDto employeeDto = service.update(employeeId, request.toCommand(), request.departmentId(), profile, request.memo());
+        EmployeeDto employeeDto = service.update(employeeId, employee.toCommand(), employee.departmentId(), profile, employee.memo());
 
         return ResponseEntity.ok().body(employeeDto);
     }
