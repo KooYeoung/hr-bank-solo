@@ -20,7 +20,7 @@ public record BackupInfoDto(
                 summery.worker(),
                 summery.startedAt(),
                 summery.endedAt(),
-                summery.status().getLabel(),
+                summery.status().name(),
                 summery.fileId()
         );
     }
@@ -31,7 +31,7 @@ public record BackupInfoDto(
                 backupInfo.getWorker(),
                 backupInfo.getStartedAt(),
                 backupInfo.getEndedAt(),
-                backupInfo.getStatus().getLabel(),
+                backupInfo.getStatus().name(),
                 backupInfo.getBackupFileId()
         );
     }
