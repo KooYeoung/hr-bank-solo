@@ -38,6 +38,7 @@ public class EmployeeHistoryRepositoryCustomImpl implements EmployeeHistoryRepos
                                 EmployeeHistorySummary.class,
                                 employeeHistory.id,
                                 employeeHistory.type.stringValue(),
+                                employeeHistory.employeeNumber,
                                 employeeHistory.memo,
                                 employeeHistory.ipAddress,
                                 employeeHistory.createdAt
