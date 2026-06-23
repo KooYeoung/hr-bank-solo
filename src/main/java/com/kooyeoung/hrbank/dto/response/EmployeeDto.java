@@ -27,7 +27,7 @@ public record EmployeeDto(
                 snapshot.departmentName(),
                 snapshot.position(),
                 snapshot.hireDate(),
-                snapshot.status(),
+                snapshot.status().name(),
                 snapshot.profileImageId()
         );
     }
@@ -42,7 +42,7 @@ public record EmployeeDto(
                 , summary.departmentName()
                 ,summary.position()
                 ,summary.hireDate()
-                ,summary.status()
+                ,summary.status().name()
                 ,summary.profileImageId()
         );
     }

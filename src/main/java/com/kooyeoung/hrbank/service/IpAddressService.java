@@ -13,7 +13,7 @@ public class IpAddressService {
 
     private final ObjectProvider<HttpServletRequest> requestObjectProvider;
 
-    public String getClientIp(){
+    public String getClientIp() {
         HttpServletRequest request = requestObjectProvider.getObject();
 
         String ip = request.getHeader("X-Forwarded-For");
@@ -30,7 +30,6 @@ public class IpAddressService {
 
         return request.getRemoteAddr();
     }
-
 
 
 }

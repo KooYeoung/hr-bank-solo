@@ -27,35 +27,35 @@ public class EmployeeController {
 
     @GetMapping
     public ResponseEntity<PageResponse<EmployeeDto>> list(@ModelAttribute EmployeeSearchRequest request){
-        PageResponse<EmployeeDto> list = service.list(request);
+        PageResponse<EmployeeDto> list = service.list(request.toCondition());
         return ResponseEntity.ok().body(list);
     }
 
     @PostMapping
     public ResponseEntity<EmployeeDto> create(@Valid @RequestPart EmployeeCreateRequest request
     , @RequestPart(required = false) MultipartFile profile){
-        EmployeeDto employeeDto = service.create(request, profile);
+        EmployeeDto employeeDto = service.create(request.toCommand(), request.departmentId(), profile, request.memo());
         return ResponseEntity.ok().body(employeeDto);
     }
 
-    @PatchMapping("/{id}")
-    public ResponseEntity<EmployeeDto> update(@PathVariable Long id, @Valid @RequestPart EmployeeUpdateRequest request
+    @PatchMapping("/{employeeId}")
+    public ResponseEntity<EmployeeDto> update(@PathVariable Long employeeId, @Valid @RequestPart EmployeeUpdateRequest request
                                               ,@RequestPart(required = false) MultipartFile profile){
 
-        EmployeeDto employeeDto = service.update(id, request, profile);
+        EmployeeDto employeeDto = service.update(employeeId, request.toCommand(), request.departmentId(), profile, request.memo());
 
         return ResponseEntity.ok().body(employeeDto);
     }
 
-    @GetMapping("/{id}")
-    public ResponseEntity<EmployeeDto> detail(@PathVariable Long id){
-        EmployeeDto detail = service.detail(id);
+    @GetMapping("/{employeeId}")
+    public ResponseEntity<EmployeeDto> detail(@PathVariable Long employeeId){
+        EmployeeDto detail = service.detail(employeeId);
         return ResponseEntity.ok().body(detail);
     }
 
-    @DeleteMapping("/{id}")
-    public ResponseEntity<Void> delete(@PathVariable Long id ){
-        service.delete(id);
+    @DeleteMapping("/{employeeId}")
+    public ResponseEntity<Void> delete(@PathVariable Long employeeId ){
+        service.delete(employeeId);
         return ResponseEntity.ok().build();
 
     }
@@ -63,7 +63,7 @@ public class EmployeeController {
     // 직원 수 조회
     @GetMapping("/count")
     public ResponseEntity<Long> employeesCount(EmployeesCountRequest request){
-        Long l = service.employeesCount(EmployeesCountRequest.from(request));
+        Long l = service.employeesCount(request.toCondition());
 
         return ResponseEntity.ok().body(l);
     }

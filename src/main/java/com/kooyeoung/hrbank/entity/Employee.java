@@ -4,7 +4,10 @@ import com.kooyeoung.hrbank.dto.command.employee.EmployeeCreateCommand;
 import com.kooyeoung.hrbank.dto.command.employee.EmployeeUpdateCommand;
 import com.kooyeoung.hrbank.entity.snapshot.EmployeeSnapshot;
 import jakarta.persistence.*;
-import lombok.*;
+import lombok.AccessLevel;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.ToString;
 
 import java.time.LocalDate;
 
@@ -12,7 +15,9 @@ import java.time.LocalDate;
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @ToString(exclude = {"department", "profileImage"})
 public class Employee {
-    @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
+
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
     @ManyToOne(fetch = FetchType.LAZY)
@@ -21,11 +26,13 @@ public class Employee {
 
     @Column(nullable = false, length = 100)
     private String name;
+
     @Column(nullable = false, unique = true, length = 255)
     private String email;
 
     @Column(name = "employee_number", nullable = false, unique = true, updatable = false, length = 20)
     private String employeeNumber;
+
     private String position;
 
     @Column(name = "hire_date", nullable = false)
@@ -40,13 +47,12 @@ public class Employee {
     @Getter
     private FileInfo profileImage;
 
-
-    public boolean isEmailChanged(String email){
+    public boolean isEmailChanged(String email) {
         return !this.email.equals(email);
     }
 
     private Employee(Department department, String name, String email, String position
-    , LocalDate hireDate,EmployeeStatus status ,FileInfo profileImage){
+            , LocalDate hireDate, EmployeeStatus status, FileInfo profileImage) {
         this.department = department;
         this.name = name;
         this.email = email;
@@ -56,10 +62,16 @@ public class Employee {
         this.profileImage = profileImage;
     }
 
-    public Employee(EmployeeCreateCommand command){
-        this(command.department(), command.name(), command.email()
-                , command.position(), command.hireDate(), EmployeeStatus.ACTIVE
-                , command.profileImage());
+    public Employee(EmployeeCreateCommand command, Department department, FileInfo profileImage) {
+        this(
+                department,
+                command.name(),
+                command.email(),
+                command.position(),
+                command.hireDate(),
+                EmployeeStatus.ACTIVE,
+                profileImage
+        );
     }
 
     public void assignEmployeeNumber(String employeeNumber) {
@@ -70,11 +82,11 @@ public class Employee {
         this.employeeNumber = employeeNumber;
     }
 
-    public void updateInfo(EmployeeUpdateCommand command){
-        this.department =command.department();
+    public void updateInfo(EmployeeUpdateCommand command, Department department) {
+        this.department = department;
         this.name = command.name();
         this.email = command.email();
-        this.position  = command.position();
+        this.position = command.position();
         this.hireDate = command.hireDate();
         this.status = command.status();
     }
@@ -83,34 +95,30 @@ public class Employee {
         this.profileImage = profileImage;
     }
 
-    public void removeProfileImage() {
-        this.profileImage = null;
-    }
-
-    public EmployeeSnapshot snapshot(){
+    public EmployeeSnapshot snapshot() {
         Long departmentId = null;
         String departmentName = null;
-        if(department != null){
+        if (department != null) {
             departmentId = department.getId();
             departmentName = department.getName();
         }
 
         Long profileImageId = null;
-        if(profileImage != null){
+        if (profileImage != null) {
             profileImageId = profileImage.getId();
         }
 
         return new EmployeeSnapshot(
-                id
-                ,name
-                ,email
-                ,employeeNumber
-                ,departmentId
-                ,departmentName
-                ,position
-                ,hireDate
-                ,status.getDescription()
-                ,profileImageId
+                id,
+                name,
+                email,
+                employeeNumber,
+                departmentId,
+                departmentName,
+                position,
+                hireDate,
+                status.getDescription(),
+                profileImageId
         );
     }
 

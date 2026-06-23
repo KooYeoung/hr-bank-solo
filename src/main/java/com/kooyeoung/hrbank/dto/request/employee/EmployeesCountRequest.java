@@ -4,9 +4,6 @@ import com.kooyeoung.hrbank.dto.repository.employee.EmployeesCountCondition;
 import com.kooyeoung.hrbank.entity.EmployeeStatus;
 
 import java.time.LocalDate;
-import java.util.Arrays;
-import java.util.Set;
-import java.util.stream.Collectors;
 
 public record EmployeesCountRequest(
         String status,
@@ -14,27 +11,22 @@ public record EmployeesCountRequest(
         LocalDate toDate
 ) {
 
-    private final static Set<String> AVAILABLE_STATUS = Arrays.stream(EmployeeStatus.values())
-            .map(Enum::name)
-            .collect(Collectors.toSet());
+    public EmployeeStatus getStatusOrDefault() {
+        if (status == null || status.isBlank()) return null;
 
-    public String getStatusOrDefault(){
-        if (status == null || status.isBlank()) return "";
-
-        String normalizedStatus = status.toUpperCase();
-        return AVAILABLE_STATUS.contains(normalizedStatus) ? EmployeeStatus.valueOf(normalizedStatus).toString() : "";
+        return EmployeeStatus.from(status);
     }
 
-    public LocalDate getToDateOrDefault(){
-        if(toDate == null || fromDate == null) return LocalDate.now();
+    public LocalDate getToDateOrDefault() {
+        if (toDate == null || fromDate == null) return LocalDate.now();
         return toDate;
     }
 
-    public static EmployeesCountCondition from(EmployeesCountRequest request){
+    public EmployeesCountCondition toCondition() {
         return new EmployeesCountCondition(
-                request.getStatusOrDefault(),
-                request.fromDate,
-                request.getToDateOrDefault()
+                getStatusOrDefault(),
+                fromDate,
+                getToDateOrDefault()
         );
     }
 }

@@ -11,7 +11,7 @@ public record EmployeeSearchCondition(
         , String position
         , LocalDate hireDateFrom
         , LocalDate hireDateTo
-        , String status
+        , EmployeeStatus status
         , String sortField
         , String cursor
         , long idAfter

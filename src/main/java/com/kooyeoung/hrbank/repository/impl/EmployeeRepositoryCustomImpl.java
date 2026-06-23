@@ -33,34 +33,34 @@ public class EmployeeRepositoryCustomImpl implements EmployeeRepositoryCustom {
 
     @Override
     public List<EmployeeSummary> searchEmployee(EmployeeSearchCondition condition) {
-        return  jpaQueryFactory.select(
+        return jpaQueryFactory.select(
                         Projections.constructor(
-                                EmployeeSummary.class
-                                ,employee.id
-                                ,employee.name
-                                ,employee.email
-                                ,employee.employeeNumber
-                                ,department.id
-                                ,department.name
-                                ,employee.position
-                                ,employee.hireDate
-                                ,employee.status.stringValue()
-                                ,fileInfo.id
+                                EmployeeSummary.class,
+                                employee.id,
+                                employee.name,
+                                employee.email,
+                                employee.employeeNumber,
+                                department.id,
+                                department.name,
+                                employee.position,
+                                employee.hireDate,
+                                employee.status,
+                                fileInfo.id
                         )
                 )
                 .from(employee)
                 .join(employee.department, department)
                 .leftJoin(employee.profileImage, fileInfo)
                 .where(
-                        getNameOrEmailContainsIgnoreCase(condition.nameOrEmail())
-                        ,getStringPathContainsIgnoreCase(employee.employeeNumber, condition.employeeNumber())
-                        ,getStringPathContainsIgnoreCase(employee.position, condition.position())
-                        ,getStringPathContainsIgnoreCase(department.name, condition.departmentName())
-                        ,getHireDateFilter(condition.hireDateFrom(), condition.hireDateTo())
-                        ,getEqEmployeeStatus(condition.status())
-                        ,cursorCondition(condition)
+                        getNameOrEmailContainsIgnoreCase(condition.nameOrEmail()),
+                        getStringPathContainsIgnoreCase(employee.employeeNumber, condition.employeeNumber()),
+                        getStringPathContainsIgnoreCase(employee.position, condition.position()),
+                        getStringPathContainsIgnoreCase(department.name, condition.departmentName()),
+                        getHireDateFilter(condition.hireDateFrom(), condition.hireDateTo()),
+                        getEqEmployeeStatus(condition.status()),
+                        cursorCondition(condition)
                 )
-                .orderBy( orderSpecifier(condition), idOrderSpecifier(condition))
+                .orderBy(orderSpecifier(condition), idOrderSpecifier(condition))
                 .limit(condition.size() + 1)
                 .fetch();
 
@@ -96,10 +96,10 @@ public class EmployeeRepositoryCustomImpl implements EmployeeRepositoryCustom {
 
     private OrderSpecifier<?> orderSpecifier(EmployeeSearchCondition condition) {
         Order order = condition.isDesc() ? Order.DESC : Order.ASC;
-        if("hireDate".equals(condition.sortField())){
+        if ("hireDate".equals(condition.sortField())) {
             return new OrderSpecifier<>(order, employee.hireDate);
         }
-        if("employeeNumber".equals(condition.sortField())){
+        if ("employeeNumber".equals(condition.sortField())) {
             return new OrderSpecifier<>(order, employee.employeeNumber);
         }
         return new OrderSpecifier<>(order, employee.name);
@@ -111,22 +111,22 @@ public class EmployeeRepositoryCustomImpl implements EmployeeRepositoryCustom {
         return new OrderSpecifier<>(order, employee.id);
     }
 
-    private BooleanExpression getEqEmployeeStatus(String status) {
-        if(isBlank(status)) return null;
+    private BooleanExpression getEqEmployeeStatus(EmployeeStatus status) {
+        if (status == null) return null;
 
-        return employee.status.eq(EmployeeStatus.valueOf(status));
+        return employee.status.eq(status);
     }
 
     private static BooleanExpression getHireDateFilter(LocalDate hireDateFrom, LocalDate hireDateTo) {
-        if(hireDateFrom == null && hireDateTo == null) return null;
-        if(hireDateFrom == null ) return employee.hireDate.loe(hireDateTo);
-        if(hireDateTo == null ) return employee.hireDate.goe(hireDateFrom);
+        if (hireDateFrom == null && hireDateTo == null) return null;
+        if (hireDateFrom == null) return employee.hireDate.loe(hireDateTo);
+        if (hireDateTo == null) return employee.hireDate.goe(hireDateFrom);
 
         return employee.hireDate.between(hireDateFrom, hireDateTo);
     }
 
-    private BooleanExpression getStringPathContainsIgnoreCase(StringPath path, String value){
-        if(isBlank(value)) return null;
+    private BooleanExpression getStringPathContainsIgnoreCase(StringPath path, String value) {
+        if (isBlank(value)) return null;
 
         return path.containsIgnoreCase(value);
     }
@@ -138,13 +138,13 @@ public class EmployeeRepositoryCustomImpl implements EmployeeRepositoryCustom {
                 .or(employee.email.containsIgnoreCase(nameOrEmail));
     }
 
-    private  boolean isBlank(String value) {
+    private boolean isBlank(String value) {
         return value == null || value.isBlank();
     }
 
     @Nullable
     private BooleanExpression cursorCondition(EmployeeSearchCondition condition) {
-        if(!condition.hasCursor()){
+        if (!condition.hasCursor()) {
             return null;
         }
 
@@ -152,10 +152,10 @@ public class EmployeeRepositoryCustomImpl implements EmployeeRepositoryCustom {
         boolean desc = condition.isDesc();
         String cursor = condition.cursor();
 
-        if("hireDate".equals(sortField)){
+        if ("hireDate".equals(sortField)) {
             LocalDate localDate = LocalDate.parse(cursor);
 
-            if(desc){
+            if (desc) {
                 return employee.hireDate.lt(localDate)
                         .or(employee.hireDate.eq(localDate)
                                 .and(employee.id.lt(condition.idAfter()))
@@ -169,7 +169,7 @@ public class EmployeeRepositoryCustomImpl implements EmployeeRepositoryCustom {
 
         StringPath path = "employeeNumber".equals(sortField) ? employee.employeeNumber : employee.name;
 
-        if(desc){
+        if (desc) {
             return path.lt(cursor)
                     .or(path.eq(cursor)
                             .and(employee.id.lt(condition.idAfter())));

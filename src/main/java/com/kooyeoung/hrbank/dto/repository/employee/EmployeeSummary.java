@@ -1,6 +1,6 @@
 package com.kooyeoung.hrbank.dto.repository.employee;
 
-import com.kooyeoung.hrbank.entity.snapshot.EmployeeSnapshot;
+import com.kooyeoung.hrbank.entity.EmployeeStatus;
 
 import java.time.LocalDate;
 
@@ -13,7 +13,7 @@ public record EmployeeSummary(
         String departmentName,
         String position,
         LocalDate hireDate,
-        String status,
+        EmployeeStatus status,
         Long profileImageId
 ) {
 }

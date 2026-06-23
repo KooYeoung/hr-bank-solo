@@ -1,9 +1,9 @@
 package com.kooyeoung.hrbank.dto.request.employee;
 
+import com.kooyeoung.hrbank.dto.repository.employee.EmployeeSearchCondition;
 import com.kooyeoung.hrbank.entity.EmployeeStatus;
 
 import java.time.LocalDate;
-import java.util.Arrays;
 import java.util.Set;
 
 public record EmployeeSearchRequest(
@@ -26,34 +26,63 @@ public record EmployeeSearchRequest(
         , String sortDirection
 ) {
 
-    private final static Set<String> SORT_FIELDS = Set.of("name" , "employeeNumber", "hireDate");
-    private final static Set<String> SORT_DIRECTIONS = Set.of("asc" , "desc");
-    private final static Set<String> AVAILABLE_STATUS = Set.of(Arrays.toString(EmployeeStatus.values()));
+    private final static String DEFAULT_SORT_FILED = "name";
+    private final static String DEFAULT_SORT_DIRECTION = "asc";
+    private final static Set<String> SORT_FIELDS = Set.of(DEFAULT_SORT_FILED, "employeeNumber", "hireDate");
+    private final static Set<String> SORT_DIRECTIONS = Set.of(DEFAULT_SORT_DIRECTION, "desc");
 
-    public int getSizeOrDefault(){
-        return size == null || size <= 0  ? 10 : size;
+    public int getSizeOrDefault() {
+        return size == null || size <= 0 ? 10 : size;
     }
 
-    public String getSortFieldOrDefault(){
-        return sortField == null || sortField.isBlank() || !SORT_FIELDS.contains(sortField)
-        ? "name" : sortField;
+    public String getSortFieldOrDefault() {
+        if (sortField == null || sortField.isBlank()) return DEFAULT_SORT_FILED;
+
+        String normalizedSortField = sortField.trim();
+
+        return !SORT_FIELDS.contains(normalizedSortField)
+                ? DEFAULT_SORT_FILED : normalizedSortField;
     }
 
-    public String getSortDirectionOrDefault(){
-        return sortDirection == null || sortDirection.isBlank() || !SORT_DIRECTIONS.contains(sortDirection.toLowerCase())
-                ? "asc" : sortDirection;
+    public String getSortDirectionOrDefault() {
+        if (sortDirection == null || sortDirection.isBlank()) return DEFAULT_SORT_DIRECTION;
+
+        String normalizedSortDirection = sortDirection.trim().toLowerCase();
+
+        return !SORT_DIRECTIONS.contains(normalizedSortDirection)
+                ? DEFAULT_SORT_DIRECTION : normalizedSortDirection;
     }
 
-    public boolean isDesc(){
+    public boolean isDesc() {
         return "desc".equalsIgnoreCase(getSortDirectionOrDefault());
     }
 
-    public boolean hasCursor(){
-        return idAfter !=null && cursor !=null && !cursor.isBlank();
+    public boolean hasCursor() {
+        return idAfter != null && cursor != null && !cursor.isBlank();
     }
 
-    public String getStatusOrDefault(){
-        return AVAILABLE_STATUS.contains(status) ? status : "";
+    public EmployeeStatus getStatusOrDefault() {
+        if (status == null || status.isBlank()) return null;
+
+        return EmployeeStatus.from(status);
+    }
+
+    public EmployeeSearchCondition toCondition() {
+        return new EmployeeSearchCondition(
+                nameOrEmail,
+                employeeNumber,
+                departmentName,
+                position,
+                hireDateFrom,
+                hireDateTo,
+                getStatusOrDefault(),
+                getSortFieldOrDefault(),
+                cursor,
+                idAfter,
+                hasCursor(),
+                isDesc(),
+                getSizeOrDefault()
+        );
     }
 
 }

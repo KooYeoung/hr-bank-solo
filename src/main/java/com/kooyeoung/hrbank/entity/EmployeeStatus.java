@@ -2,6 +2,10 @@ package com.kooyeoung.hrbank.entity;
 
 import lombok.Getter;
 
+import java.util.Arrays;
+import java.util.Set;
+import java.util.stream.Collectors;
+
 @Getter
 public enum EmployeeStatus {
     ACTIVE("재직중"),
@@ -10,19 +14,24 @@ public enum EmployeeStatus {
 
     private final String description;
 
-    EmployeeStatus(String description){
+    EmployeeStatus(String description) {
         this.description = description;
     }
+
+    private final static Set<String> AVAILABLE_STATUS = Arrays.stream(EmployeeStatus.values())
+            .map(Enum::name)
+            .collect(Collectors.toUnmodifiableSet());
 
     public static EmployeeStatus from(String value) {
         if (value == null || value.isBlank()) {
             throw new IllegalArgumentException("직원 상태는 필수값입니다.");
         }
+        String normalizedStatus = value.trim().toUpperCase();
 
-        try {
-            return EmployeeStatus.valueOf(value.toUpperCase());
-        } catch (IllegalArgumentException e) {
+        if (!AVAILABLE_STATUS.contains(normalizedStatus)) {
             throw new IllegalArgumentException("유효하지 않은 직원 상태입니다.");
         }
+
+        return EmployeeStatus.valueOf(normalizedStatus);
     }
 }

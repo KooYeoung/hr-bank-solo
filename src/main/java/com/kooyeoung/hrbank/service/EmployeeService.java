@@ -5,11 +5,7 @@ import com.kooyeoung.hrbank.dto.command.employee.EmployeeUpdateCommand;
 import com.kooyeoung.hrbank.dto.command.history.EmployeeHistoryCreateCommand;
 import com.kooyeoung.hrbank.dto.repository.employee.EmployeeSearchCondition;
 import com.kooyeoung.hrbank.dto.repository.employee.EmployeeSummary;
-import com.kooyeoung.hrbank.dto.repository.employee.EmployeeTrendCondition;
 import com.kooyeoung.hrbank.dto.repository.employee.EmployeesCountCondition;
-import com.kooyeoung.hrbank.dto.request.employee.EmployeeCreateRequest;
-import com.kooyeoung.hrbank.dto.request.employee.EmployeeSearchRequest;
-import com.kooyeoung.hrbank.dto.request.employee.EmployeeUpdateRequest;
 import com.kooyeoung.hrbank.dto.response.EmployeeDto;
 import com.kooyeoung.hrbank.dto.response.PageResponse;
 import com.kooyeoung.hrbank.entity.Department;
@@ -39,25 +35,26 @@ public class EmployeeService {
     private final EmployeeHistoryService employeeHistoryService;
 
     @Transactional
-    public EmployeeDto create(EmployeeCreateRequest request, MultipartFile file){
-        validateEmailUniqueness(request.email());
+    public EmployeeDto create(EmployeeCreateCommand command, Long departmentId, MultipartFile file, String memo) {
+        validateEmailUniqueness(command.email());
 
-        Department department = departmentReader.getDepartmentOrThrow(request.departmentId());
-        String employeeNumber = numberGenerator.generate(request.hireDate());
+        Department department = departmentReader.getDepartmentOrThrow(departmentId);
+        String employeeNumber = numberGenerator.generate(command.hireDate());
 
         FileInfo profileFile = fileInfoService.save(file, FileType.PROFILE_IMAGE);
 
-        EmployeeCreateCommand command = request.toCommand(department, profileFile);
-
-        Employee employee = new Employee(command);
+        Employee employee = new Employee(command, department, profileFile);
         employee.assignEmployeeNumber(employeeNumber);
 
         Employee savedEmployee = repository.save(employee);
         EmployeeSnapshot snapshot = savedEmployee.snapshot();
 
         employeeHistoryService.save(EmployeeHistoryCreateCommand.create(
-                null,snapshot, request.memo()
-        ));
+                        null,
+                        snapshot,
+                        memo
+                )
+        );
 
         // TODO 2차 수정 이벤트 관리 방식으로 변환 예정.
 
@@ -66,17 +63,15 @@ public class EmployeeService {
          * 이것도 나중에 보상 처리나 afterCommit 이벤트로 정리
          */
 
-
-        // dto 반환
         return EmployeeDto.from(snapshot);
     }
 
     private void validateEmailUniqueness(String email) {
         boolean emailExists = repository.existsByEmail(email);
-        if(emailExists) throw new IllegalArgumentException("이미 존재하는 이메일 입니다.");
+        if (emailExists) throw new IllegalArgumentException("이미 존재하는 이메일 입니다.");
     }
 
-    public EmployeeDto detail(Long id){
+    public EmployeeDto detail(Long id) {
 
         Employee employee = repository.findDetailById(id)
                 .orElseThrow(() -> new IllegalArgumentException("존재 하지 않는 사원 입니다."));
@@ -86,30 +81,15 @@ public class EmployeeService {
         return EmployeeDto.from(snapshot);
     }
 
-    public PageResponse<EmployeeDto> list(EmployeeSearchRequest request){
+    public PageResponse<EmployeeDto> list(EmployeeSearchCondition condition) {
 
-        EmployeeSearchCondition condition = new EmployeeSearchCondition(
-                request.nameOrEmail()
-                ,request.employeeNumber()
-                ,request.departmentName()
-                ,request.position()
-                ,request.hireDateFrom()
-                ,request.hireDateTo()
-                ,request.getStatusOrDefault()
-                ,request.sortField()
-                ,request.cursor()
-                ,request.idAfter()
-                ,request.hasCursor()
-                ,request.isDesc()
-                ,request.getSizeOrDefault()
-        );
 
         int size = condition.size();
         List<EmployeeSummary> employeeSummaries = repository.searchEmployee(condition);
 
-        boolean hasNext = employeeSummaries.size() >size;
+        boolean hasNext = employeeSummaries.size() > size;
 
-        List<EmployeeSummary> pageContent = hasNext ? employeeSummaries.subList(0,size) : employeeSummaries;
+        List<EmployeeSummary> pageContent = hasNext ? employeeSummaries.subList(0, size) : employeeSummaries;
 
         List<EmployeeDto> content = pageContent.stream()
                 .map(EmployeeDto::from)
@@ -118,7 +98,7 @@ public class EmployeeService {
         String nextCursor = null;
         Long nextIdAfter = null;
 
-        if(hasNext && !pageContent.isEmpty()){
+        if (hasNext && !pageContent.isEmpty()) {
             EmployeeSummary last = pageContent.get(pageContent.size() - 1);
 
             nextCursor = getNextCursor(condition.sortField(), last);
@@ -128,21 +108,21 @@ public class EmployeeService {
 
         return new PageResponse<>(
                 content
-                ,nextCursor
-                ,nextIdAfter
-                ,size
-                ,totalCounts
-                ,hasNext
+                , nextCursor
+                , nextIdAfter
+                , size
+                , totalCounts
+                , hasNext
         );
 
     }
 
     private String getNextCursor(String sortFiled, EmployeeSummary last) {
-        if("hireDate".equals(sortFiled)){
+        if ("hireDate".equals(sortFiled)) {
             return last.hireDate().toString();
         }
 
-        if("employeeNumber".equals(sortFiled)){
+        if ("employeeNumber".equals(sortFiled)) {
             return last.employeeNumber();
         }
 
@@ -151,14 +131,14 @@ public class EmployeeService {
 
 
     @Transactional
-    public EmployeeDto update(Long id,EmployeeUpdateRequest request, MultipartFile profileImage){
-        Employee foundEmployee = getEmployeeDetailOrThrow(id);
+    public EmployeeDto update(Long employeeId, EmployeeUpdateCommand command, Long departmentId, MultipartFile profileImage, String memo) {
+        Employee foundEmployee = getEmployeeDetailOrThrow(employeeId);
 
-        if(foundEmployee.isEmailChanged(request.email())){
-            validateEmailUniqueness(request.email());
+        if (foundEmployee.isEmailChanged(command.email())) {
+            validateEmailUniqueness(command.email());
         }
 
-        Department department = departmentReader.getDepartmentOrThrow(request.departmentId());
+        Department department = departmentReader.getDepartmentOrThrow(departmentId);
 
         EmployeeSnapshot prevSnapshot = foundEmployee.snapshot();
 
@@ -169,18 +149,17 @@ public class EmployeeService {
                 ? currentProfileInfo
                 : beforeProfileInfo;
 
-        EmployeeUpdateCommand command = request.toCommand(department, profileInfo);
-        foundEmployee.updateInfo(command);
-        foundEmployee.changeProfileImage(command.profileImage());
+        foundEmployee.updateInfo(command, department);
+        foundEmployee.changeProfileImage(profileInfo);
 
-        if (currentProfileInfo != null && beforeProfileInfo != null){
+        if (currentProfileInfo != null && beforeProfileInfo != null) {
             fileInfoService.delete(beforeProfileInfo.getId());
         }
 
         EmployeeSnapshot afterSnapshot = foundEmployee.snapshot();
 
         employeeHistoryService.save(EmployeeHistoryCreateCommand.create(
-                prevSnapshot,afterSnapshot, request.memo()
+                prevSnapshot, afterSnapshot, memo
         ));
         // TODO 2차 수정 이벤트 관리 방식으로 변환 예정.
 
@@ -189,45 +168,30 @@ public class EmployeeService {
          * 이것도 나중에 보상 처리나 afterCommit 이벤트로 정리
          */
 
-
         return EmployeeDto.from(afterSnapshot);
     }
 
     @Transactional
-    public void delete(Long id){
+    public void delete(Long id) {
         Employee foundEmployee = getEmployeeDetailOrThrow(id);
 
         EmployeeSnapshot snapshot = foundEmployee.snapshot();
 
-        if(foundEmployee.getProfileImage() != null){
+        if (foundEmployee.getProfileImage() != null) {
             fileInfoService.delete(foundEmployee.getProfileImage().getId());
         }
 
         employeeHistoryService.save(EmployeeHistoryCreateCommand.create(
-                snapshot,null,""
+                snapshot, null, ""
         ));
         // TODO 2차 수정 이벤트 관리 방식으로 변환 예정.
 
         repository.delete(foundEmployee);
     }
 
-    public Long employeesCount(EmployeesCountCondition condition){
+    public Long employeesCount(EmployeesCountCondition condition) {
 
         return repository.countEmployee(condition);
-    }
-
-    public void statsTrend(EmployeeTrendCondition condition){
-        /**
-         * [
-         *   {
-         *     "date": "2023-01-01", 날짜
-         *     "count": 150, 인원수
-         *     "change": 5, 증감수
-         *     "changeRate": 3.5 증감율
-         *   }
-         * ]
-         */
-
     }
 
     @NonNull

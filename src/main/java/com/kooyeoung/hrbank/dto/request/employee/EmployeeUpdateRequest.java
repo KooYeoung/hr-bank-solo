@@ -1,10 +1,8 @@
 package com.kooyeoung.hrbank.dto.request.employee;
 
-import com.kooyeoung.hrbank.dto.command.employee.EmployeeCreateCommand;
 import com.kooyeoung.hrbank.dto.command.employee.EmployeeUpdateCommand;
 import com.kooyeoung.hrbank.entity.Department;
 import com.kooyeoung.hrbank.entity.EmployeeStatus;
-import com.kooyeoung.hrbank.entity.FileInfo;
 import jakarta.validation.constraints.*;
 
 import java.time.LocalDate;
@@ -28,20 +26,14 @@ public record EmployeeUpdateRequest(
         @Size(max = 500)
         String memo
 ) {
-        public EmployeeUpdateCommand toCommand(Department department, FileInfo profileImage){
+    public EmployeeUpdateCommand toCommand() {
+        return new EmployeeUpdateCommand(
+                name,
+                email,
+                position,
+                hireDate,
+                EmployeeStatus.from(status)
+        );
+    }
 
-
-
-                return new EmployeeUpdateCommand(department
-                        ,name
-                        ,email
-                        ,position
-                        ,hireDate
-                        ,EmployeeStatus.from(status)
-                        ,profileImage);
-        }
-
-        public EmployeeUpdateCommand toCommand(Department department){
-                return this.toCommand(department, null);
-        }
 }

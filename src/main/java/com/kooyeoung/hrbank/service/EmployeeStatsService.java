@@ -22,7 +22,7 @@ public class EmployeeStatsService {
 
     private final EmployeeRepository employeeRepository;
 
-    public List<EmployeeDistributionDto> statsDistribution(EmployeeDistributionCondition condition){
+    public List<EmployeeDistributionDto> statsDistribution(EmployeeDistributionCondition condition) {
         List<EmployeeDistributionCount> counts = switch (condition.groupBy()) {
             case "position" -> employeeRepository.countGroupByPosition(condition.status());
             default -> employeeRepository.countGroupByDepartment(condition.status());

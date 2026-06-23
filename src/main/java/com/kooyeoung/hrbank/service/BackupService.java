@@ -213,7 +213,7 @@ public class BackupService {
                                         snapshot.departmentName(),
                                         snapshot.position(),
                                         snapshot.hireDate(),
-                                        snapshot.status()
+                                        snapshot.statusDescription()
                                 );
                             }
 

@@ -6,7 +6,6 @@ import com.kooyeoung.hrbank.repository.EmployeeNumberSequenceRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
-import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDate;
@@ -21,7 +20,7 @@ public class EmployeeNumberGenerator {
     private final EmployeeNumberSequenceRepository repository;
     private final EmployeeNumberProperties properties;
 
-    public String generate(LocalDate hireDate){
+    public String generate(LocalDate hireDate) {
 
         String yyyyMM = hireDate.format(DateTimeFormatter.ofPattern("yyyyMM"));
 
