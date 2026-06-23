@@ -14,11 +14,11 @@ public class EmployeeReader {
 
     private final EmployeeRepository repository;
 
-    public Long countByDepartment_Id(Long id){
+    public Long countByDepartmentId(Long id){
         return repository.countByDepartment_Id(id);
     }
 
-    public boolean existsByDepartment_Id(Long id){
+    public boolean existsByDepartmentId(Long id){
         return repository.existsByDepartment_Id(id);
     }
 }

@@ -1,5 +1,6 @@
 package com.kooyeoung.hrbank.dto.request.department;
 
+import com.kooyeoung.hrbank.dto.command.department.DepartmentUpdateCommand;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
@@ -15,4 +16,12 @@ public record DepartmentUpdateRequest(
         @NotNull
         LocalDate establishedDate
 ) {
+
+    public DepartmentUpdateCommand toCommand() {
+        return new DepartmentUpdateCommand(
+                name,
+                description,
+                establishedDate
+        );
+    }
 }

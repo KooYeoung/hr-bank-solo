@@ -31,19 +31,21 @@ public class DepartmentRepositoryCustomImpl implements DepartmentRepositoryCusto
     @Override
     public List<DepartmentSummary> searchDepartment(DepartmentSearchCondition condition) {
 
-        return buildDepartmentSummaryQuery(containsNameOrDescription(condition.keyword())
-                , cursorCondition(condition))
+        return buildDepartmentSummaryQuery(
+                containsNameOrDescription(condition.keyword()),
+                cursorCondition(condition)
+        )
                 .orderBy(orderSpecifier(condition), idOrderSpecifier(condition))
-                .limit(condition.size()+1)
+                .limit(condition.size() + 1)
                 .fetch();
     }
 
     @Override
     public Optional<DepartmentSummary> findSummaryById(Long id) {
-        return Optional
-                .ofNullable(buildDepartmentSummaryQuery(department.id.eq(id))
+        return Optional.ofNullable(
+                buildDepartmentSummaryQuery(department.id.eq(id))
                         .fetchOne()
-                );
+        );
     }
 
     @Override
@@ -61,22 +63,22 @@ public class DepartmentRepositoryCustomImpl implements DepartmentRepositoryCusto
         return jpaQueryFactory.
                 select(
                         Projections.constructor(
-                                DepartmentSummary.class
-                                , department.id
-                                , department.name
-                                , department.description
-                                , department.establishedDate
-                                , employee.id.count()
+                                DepartmentSummary.class,
+                                department.id,
+                                department.name,
+                                department.description,
+                                department.establishedDate,
+                                employee.id.count()
                         )
                 )
                 .from(department)
                 .leftJoin(employee).on(employee.department.id.eq(department.id))
                 .where(predicates)
                 .groupBy(
-                        department.id
-                        ,department.name
-                        ,department.description
-                        ,department.establishedDate
+                        department.id,
+                        department.name,
+                        department.description,
+                        department.establishedDate
                 );
     }
 
@@ -84,7 +86,7 @@ public class DepartmentRepositoryCustomImpl implements DepartmentRepositoryCusto
     private OrderSpecifier<?> orderSpecifier(DepartmentSearchCondition condition) {
         Order order = condition.isDesc() ? Order.DESC : Order.ASC;
 
-        if("establishedDate".equals(condition.sortField())){
+        if ("establishedDate".equals(condition.sortField())) {
             return new OrderSpecifier<>(order, department.establishedDate);
         }
         return new OrderSpecifier<>(order, department.name);
@@ -99,7 +101,7 @@ public class DepartmentRepositoryCustomImpl implements DepartmentRepositoryCusto
 
     @Nullable
     private BooleanExpression cursorCondition(DepartmentSearchCondition condition) {
-        if(!condition.hasCursor()){
+        if (!condition.hasCursor()) {
             return null;
         }
 
@@ -107,10 +109,10 @@ public class DepartmentRepositoryCustomImpl implements DepartmentRepositoryCusto
         boolean desc = condition.isDesc();
         String cursor = condition.cursor();
 
-        if("establishedDate".equals(sortField)){
+        if ("establishedDate".equals(sortField)) {
             LocalDate localDate = LocalDate.parse(cursor);
 
-            if(desc){
+            if (desc) {
                 return department.establishedDate.lt(localDate)
                         .or(department.establishedDate.eq(localDate)
                                 .and(department.id.lt(condition.idAfter()))
@@ -122,7 +124,7 @@ public class DepartmentRepositoryCustomImpl implements DepartmentRepositoryCusto
                             .and(department.id.gt(condition.idAfter())));
         }
 
-        if(desc){
+        if (desc) {
             return department.name.lt(cursor)
                     .or(department.name.eq(cursor)
                             .and(department.id.lt(condition.idAfter())));
@@ -134,12 +136,12 @@ public class DepartmentRepositoryCustomImpl implements DepartmentRepositoryCusto
     }
 
     private BooleanExpression containsNameOrDescription(String keyword) {
-        if(keyword  == null || keyword.isBlank()){
+        if (keyword == null || keyword.isBlank()) {
             return null;
         }
 
         return department.name.containsIgnoreCase(keyword)
-                        .or(department.description.containsIgnoreCase(keyword));
+                .or(department.description.containsIgnoreCase(keyword));
 
     }
 }

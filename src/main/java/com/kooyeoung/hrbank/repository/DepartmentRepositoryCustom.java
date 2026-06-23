@@ -8,6 +8,8 @@ import java.util.Optional;
 
 public interface DepartmentRepositoryCustom {
     List<DepartmentSummary> searchDepartment(DepartmentSearchCondition condition);
+
     Optional<DepartmentSummary> findSummaryById(Long id);
+
     long countDepartment(DepartmentSearchCondition condition);
 }

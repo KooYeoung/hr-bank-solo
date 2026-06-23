@@ -22,14 +22,14 @@ public class DepartmentController {
 
     @GetMapping
     public ResponseEntity<PageResponse<DepartmentDto>> list(@ModelAttribute DepartmentSearchRequest request){
-        PageResponse<DepartmentDto> page = service.list(request);
+        PageResponse<DepartmentDto> page = service.list(request.toCondition());
 
         return ResponseEntity.ok().body(page);
     }
 
     @PostMapping
     public ResponseEntity<DepartmentDto> create(@Valid @RequestBody DepartmentCreateRequest request){
-        DepartmentDto savedDepartment = service.save(request);
+        DepartmentDto savedDepartment = service.save(request.toCommand());
 
         return ResponseEntity.ok().body(savedDepartment);
     }
@@ -43,7 +43,7 @@ public class DepartmentController {
 
     @PatchMapping("/{id}")
     public ResponseEntity<DepartmentDto> update(@PathVariable Long id,@Valid @RequestBody DepartmentUpdateRequest request){
-        DepartmentDto updatedDepartment = service.update(id, request);
+        DepartmentDto updatedDepartment = service.update(id, request.toCommand());
 
         return ResponseEntity.ok().body(updatedDepartment);
     }

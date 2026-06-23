@@ -1,7 +1,12 @@
 package com.kooyeoung.hrbank.entity;
 
+import com.kooyeoung.hrbank.dto.command.department.DepartmentCreateCommand;
+import com.kooyeoung.hrbank.dto.command.department.DepartmentUpdateCommand;
 import jakarta.persistence.*;
-import lombok.*;
+import lombok.AccessLevel;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.ToString;
 
 import java.time.LocalDate;
 
@@ -11,28 +16,31 @@ import java.time.LocalDate;
 @ToString
 public class Department {
 
-    @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
     @Column(unique = true)
     private String name;
+
     private String description;
+
     private LocalDate establishedDate;
 
-    public boolean isNameChanged(String name){
+    public boolean isNameChanged(String name) {
         return !this.name.equals(name);
     }
 
-    public Department(String name, String description, LocalDate establishedDate){
-        this.name =name;
-        this.description = description;
-        this.establishedDate = establishedDate;
+    public Department(DepartmentCreateCommand command) {
+        this.name = command.name();
+        this.description = command.description();
+        this.establishedDate = command.establishedDate();
     }
 
-    public void updateInfo(String name, String description, LocalDate establishedDate){
-        this.name = name;
-        this.description = description;
-        this.establishedDate = establishedDate;
+    public void updateInfo(DepartmentUpdateCommand command) {
+        this.name = command.name();
+        this.description = command.description();
+        this.establishedDate = command.establishedDate();
     }
 
 }

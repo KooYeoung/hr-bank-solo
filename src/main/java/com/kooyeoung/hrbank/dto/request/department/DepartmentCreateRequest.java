@@ -1,6 +1,6 @@
 package com.kooyeoung.hrbank.dto.request.department;
 
-import com.kooyeoung.hrbank.entity.Department;
+import com.kooyeoung.hrbank.dto.command.department.DepartmentCreateCommand;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
@@ -17,8 +17,11 @@ public record DepartmentCreateRequest(
         LocalDate establishedDate
 ) {
 
-    public Department toDepartment(){
-        return new Department(name, description, establishedDate);
+    public DepartmentCreateCommand toCommand() {
+        return new DepartmentCreateCommand(
+                name,
+                description,
+                establishedDate
+        );
     }
-
 }
