@@ -1,5 +1,6 @@
 package com.kooyeoung.hrbank.entity;
 
+import com.kooyeoung.hrbank.exception.employee.InvalidEmployeeStatusException;
 import lombok.Getter;
 
 import java.util.Arrays;
@@ -24,12 +25,12 @@ public enum EmployeeStatus {
 
     public static EmployeeStatus from(String value) {
         if (value == null || value.isBlank()) {
-            throw new IllegalArgumentException("직원 상태는 필수값입니다.");
+            throw new InvalidEmployeeStatusException("직원 상태는 필수값입니다.");
         }
         String normalizedStatus = value.trim().toUpperCase();
 
         if (!AVAILABLE_STATUS.contains(normalizedStatus)) {
-            throw new IllegalArgumentException("유효하지 않은 직원 상태입니다.");
+            throw new InvalidEmployeeStatusException("유효하지 않은 직원 상태입니다. status=" + value);
         }
 
         return EmployeeStatus.valueOf(normalizedStatus);

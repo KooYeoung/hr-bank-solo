@@ -1,5 +1,7 @@
 package com.kooyeoung.hrbank.entity;
 
+import com.kooyeoung.hrbank.exception.employeeHistory.InvalidHistoryTypeException;
+
 import java.util.Arrays;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -12,9 +14,10 @@ public enum HistoryType {
             .collect(Collectors.toUnmodifiableSet());
 
     public static HistoryType from(String type) {
-        if (type == null || type.isBlank()) throw new IllegalArgumentException("이력타입이 존재하지 않습니다.");
+        if (type == null || type.isBlank()) throw new InvalidHistoryTypeException("이력 타입이 존재하지 않습니다.");
         String normalizedType = type.trim().toUpperCase();
-        if (!AVAILABLE_TYPES.contains(normalizedType)) throw new IllegalArgumentException("지원하지않는 이력타입입니다.");
+        if (!AVAILABLE_TYPES.contains(normalizedType))
+            throw new InvalidHistoryTypeException("지원하지 않는 이력 타입입니다. type=" + type);
 
         return HistoryType.valueOf(normalizedType);
     }
