@@ -7,5 +7,6 @@ import java.util.List;
 
 public interface BackupInfoRepositoryCustom {
     List<BackupInfoSummery> searchBackupInfo(BackupInfoSearchCondition condition);
+
     Long countBackupInfo(BackupInfoSearchCondition condition);
 }

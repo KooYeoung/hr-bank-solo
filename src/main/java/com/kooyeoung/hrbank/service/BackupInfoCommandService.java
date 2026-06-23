@@ -13,8 +13,8 @@ import org.springframework.transaction.annotation.Transactional;
 import java.time.LocalDateTime;
 
 /**
- *  백업 상태 변경은 실패 상황에서도 독립적으로 커밋되어야 하므로
- *  모든 public 메서드를 REQUIRES_NEW 트랜잭션으로 실행한다.
+ * 백업 상태 변경은 실패 상황에서도 독립적으로 커밋되어야 하므로
+ * 모든 public 메서드를 REQUIRES_NEW 트랜잭션으로 실행한다.
  */
 @RequiredArgsConstructor
 @Slf4j
@@ -23,27 +23,27 @@ import java.time.LocalDateTime;
 public class BackupInfoCommandService {
     private final BackupInfoRepository backupInfoRepository;
 
-    public BackupInfo skip(String worker){
+    public BackupInfo skip(String worker) {
         BackupInfo currentSkippedBackup = BackupInfo.skippedBackupInfo(worker, LocalDateTime.now());
 
-       return backupInfoRepository.save(currentSkippedBackup);
+        return backupInfoRepository.save(currentSkippedBackup);
 
     }
 
-    public BackupInfo createInProgress(String worker){
+    public BackupInfo createInProgress(String worker) {
         BackupInfo inProgressBackup = BackupInfo.inProgressBackupInfo(worker, LocalDateTime.now());
         return backupInfoRepository.save(inProgressBackup);
 
     }
 
-    public BackupInfo complete(Long backupId, FileInfo backupFile){
+    public BackupInfo complete(Long backupId, FileInfo backupFile) {
         BackupInfo backupInfo = getBackupInfoById(backupId);
 
         backupInfo.complete(backupFile);
         return backupInfo;
     }
 
-    public BackupInfo fail(Long backupId, FileInfo logFile){
+    public BackupInfo fail(Long backupId, FileInfo logFile) {
         BackupInfo backupInfo = getBackupInfoById(backupId);
 
         backupInfo.fail(logFile);

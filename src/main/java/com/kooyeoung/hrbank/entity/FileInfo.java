@@ -36,12 +36,13 @@ public class FileInfo {
     private FileType type;
 
     public FileInfo(
-            String originalFileName
-            , String storedFileName
-            , String filePath
-            , String contentType
-            , Long size
-            , FileType type) {
+            String originalFileName,
+            String storedFileName,
+            String filePath,
+            String contentType,
+            Long size,
+            FileType type
+    ) {
         this.originalFileName = originalFileName;
         this.storedFileName = storedFileName;
         this.filePath = filePath;

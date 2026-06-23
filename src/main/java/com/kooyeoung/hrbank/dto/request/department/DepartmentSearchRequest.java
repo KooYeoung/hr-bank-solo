@@ -5,18 +5,12 @@ import com.kooyeoung.hrbank.dto.repository.department.DepartmentSearchCondition;
 import java.util.Set;
 
 public record DepartmentSearchRequest(
-        // 부서 이름 또는 설명
-        String nameOrDescription
-        // 이전 페이지 마지막 요소 ID
-        , Long idAfter
-        // 커서 (다음 페이지 시작점)
-        , String cursor
-        // 페이지 크기 (기본값: 10)
-        , Integer size
-        // 정렬 필드 (name 또는 establishedDate)
-        , String sortField
-        // 정렬 방향 (asc 또는 desc, 기본값: asc)
-        , String sortDirection
+        String nameOrDescription,
+        Long idAfter,
+        String cursor,
+        Integer size,
+        String sortField,
+        String sortDirection
 ) {
 
     private final static String DEFAULT_SORT_FIELD = "name";
@@ -33,8 +27,7 @@ public record DepartmentSearchRequest(
 
         String normalizedSortField = sortField.trim();
 
-        return !SORT_FIELDS.contains(normalizedSortField)
-                ? DEFAULT_SORT_FIELD : normalizedSortField;
+        return !SORT_FIELDS.contains(normalizedSortField) ? DEFAULT_SORT_FIELD : normalizedSortField;
     }
 
     public String getSortDirectionOrDefault() {
@@ -42,8 +35,7 @@ public record DepartmentSearchRequest(
 
         String normalizedSortDirection = sortDirection.trim().toLowerCase();
 
-        return !SORT_DIRECTIONS.contains(normalizedSortDirection)
-                ? DEFAULT_SORT_DIRECTION : normalizedSortDirection;
+        return !SORT_DIRECTIONS.contains(normalizedSortDirection) ? DEFAULT_SORT_DIRECTION : normalizedSortDirection;
     }
 
     public boolean isDesc() {

@@ -35,25 +35,25 @@ public class EmployeeHistoryRepositoryCustomImpl implements EmployeeHistoryRepos
         return jpaQueryFactory
                 .select(
                         Projections.constructor(
-                                EmployeeHistorySummary.class
-                                , employeeHistory.id
-                                , employeeHistory.type.stringValue()
-                                , employeeHistory.memo
-                                , employeeHistory.ipAddress
-                                , employeeHistory.createdAt
+                                EmployeeHistorySummary.class,
+                                employeeHistory.id,
+                                employeeHistory.type.stringValue(),
+                                employeeHistory.memo,
+                                employeeHistory.ipAddress,
+                                employeeHistory.createdAt
                         )
                 ).from(employeeHistory)
                 .where(
-                        getStringPathPredicate(employeeHistory.employeeNumber, condition.employeeNumber())
-                        , getStringPathPredicate(employeeHistory.memo, condition.memo())
-                        , getStringPathPredicate(employeeHistory.ipAddress, condition.ipAddress())
-                        , getHistoryTypeEqPredicate(condition.type())
-                        , getFilterCreatedAt(condition.atFrom(), condition.atTo())
-                        , cursorCondition(condition)
+                        getStringPathPredicate(employeeHistory.employeeNumber, condition.employeeNumber()),
+                        getStringPathPredicate(employeeHistory.memo, condition.memo()),
+                        getStringPathPredicate(employeeHistory.ipAddress, condition.ipAddress()),
+                        getHistoryTypeEqPredicate(condition.type()),
+                        getFilterCreatedAt(condition.atFrom(), condition.atTo()),
+                        cursorCondition(condition)
                 )
                 .orderBy(
-                        orderSpecifier(condition)
-                        , idOrderSpecifier(condition)
+                        orderSpecifier(condition),
+                        idOrderSpecifier(condition)
                 )
                 .limit(condition.size() + 1)
                 .fetch();
@@ -143,12 +143,13 @@ public class EmployeeHistoryRepositoryCustomImpl implements EmployeeHistoryRepos
                 .select(employeeHistory.id.count())
                 .from(employeeHistory)
                 .where(
-                        getStringPathPredicate(employeeHistory.employeeNumber, condition.employeeNumber())
-                        , getStringPathPredicate(employeeHistory.memo, condition.memo())
-                        , getStringPathPredicate(employeeHistory.ipAddress, condition.ipAddress())
-                        , getHistoryTypeEqPredicate(condition.type())
-                        , getFilterCreatedAt(condition.atFrom(), condition.atTo())
-                ).fetchOne();
+                        getStringPathPredicate(employeeHistory.employeeNumber, condition.employeeNumber()),
+                        getStringPathPredicate(employeeHistory.memo, condition.memo()),
+                        getStringPathPredicate(employeeHistory.ipAddress, condition.ipAddress()),
+                        getHistoryTypeEqPredicate(condition.type()),
+                        getFilterCreatedAt(condition.atFrom(), condition.atTo())
+                )
+                .fetchOne();
 
         return employeeHistoryCount == null ? 0 : employeeHistoryCount;
     }

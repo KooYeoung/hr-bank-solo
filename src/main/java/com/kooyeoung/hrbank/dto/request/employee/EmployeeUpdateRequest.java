@@ -1,7 +1,6 @@
 package com.kooyeoung.hrbank.dto.request.employee;
 
 import com.kooyeoung.hrbank.dto.command.employee.EmployeeUpdateCommand;
-import com.kooyeoung.hrbank.entity.Department;
 import com.kooyeoung.hrbank.entity.EmployeeStatus;
 import jakarta.validation.constraints.*;
 

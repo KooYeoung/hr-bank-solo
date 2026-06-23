@@ -65,7 +65,7 @@ public class BackupInfoRepositoryCustomImpl implements BackupInfoRepositoryCusto
                 )
                 .fetchOne();
 
-        return l == null ?  0L : l;
+        return l == null ? 0L : l;
     }
 
     private OrderSpecifier<?> orderSpecifier(BackupInfoSearchCondition condition) {
@@ -100,7 +100,7 @@ public class BackupInfoRepositoryCustomImpl implements BackupInfoRepositoryCusto
     }
 
     private BooleanExpression getStatusExpression(BackupStatus staus) {
-        if (staus == null){
+        if (staus == null) {
             return null;
         }
 

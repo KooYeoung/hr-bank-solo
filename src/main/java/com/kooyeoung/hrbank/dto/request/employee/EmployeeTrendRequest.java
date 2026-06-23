@@ -44,7 +44,9 @@ public record EmployeeTrendRequest(
 
     public EmployeeTrendCondition toCondition() {
         return new EmployeeTrendCondition(
-                getFromOrDefault(), getToOrDefault(), getUnitOrDefault()
+                getFromOrDefault(),
+                getToOrDefault(),
+                getUnitOrDefault()
         );
     }
 }

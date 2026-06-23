@@ -7,5 +7,6 @@ import java.util.List;
 
 public interface EmployeeHistoryRepositoryCustom {
     List<EmployeeHistorySummary> searchEmployeeHistory(EmployeeHistorySearchCondition condition);
+
     long countEmployeeHistory(EmployeeHistorySearchCondition condition);
 }

@@ -7,23 +7,18 @@ import java.time.LocalDate;
 import java.util.Set;
 
 public record EmployeeSearchRequest(
-        String nameOrEmail
-        , String employeeNumber
-        , String departmentName
-        , String position
-        , LocalDate hireDateFrom
-        , LocalDate hireDateTo
-        , String status
-        // 이전 페이지 마지막 요소 ID
-        , Long idAfter
-        // 커서 (다음 페이지 시작점)
-        , String cursor
-        // 페이지 크기 (기본값: 10)
-        , Integer size
-        // 정렬 필드 (name 또는 establishedDate)
-        , String sortField
-        // 정렬 방향 (asc 또는 desc, 기본값: asc)
-        , String sortDirection
+        String nameOrEmail,
+        String employeeNumber,
+        String departmentName,
+        String position,
+        LocalDate hireDateFrom,
+        LocalDate hireDateTo,
+        String status,
+        Long idAfter,
+        String cursor,
+        Integer size,
+        String sortField,
+        String sortDirection
 ) {
 
     private final static String DEFAULT_SORT_FILED = "name";
@@ -40,8 +35,7 @@ public record EmployeeSearchRequest(
 
         String normalizedSortField = sortField.trim();
 
-        return !SORT_FIELDS.contains(normalizedSortField)
-                ? DEFAULT_SORT_FILED : normalizedSortField;
+        return !SORT_FIELDS.contains(normalizedSortField) ? DEFAULT_SORT_FILED : normalizedSortField;
     }
 
     public String getSortDirectionOrDefault() {
@@ -49,8 +43,7 @@ public record EmployeeSearchRequest(
 
         String normalizedSortDirection = sortDirection.trim().toLowerCase();
 
-        return !SORT_DIRECTIONS.contains(normalizedSortDirection)
-                ? DEFAULT_SORT_DIRECTION : normalizedSortDirection;
+        return !SORT_DIRECTIONS.contains(normalizedSortDirection) ? DEFAULT_SORT_DIRECTION : normalizedSortDirection;
     }
 
     public boolean isDesc() {

@@ -4,7 +4,6 @@ import com.kooyeoung.hrbank.dto.repository.employeeHistory.EmployeeHistorySearch
 import com.kooyeoung.hrbank.entity.HistoryType;
 
 import java.time.LocalDateTime;
-import java.util.Arrays;
 import java.util.Set;
 
 public record EmployeeHistorySearchRequest(

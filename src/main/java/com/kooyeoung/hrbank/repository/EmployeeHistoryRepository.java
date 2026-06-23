@@ -10,7 +10,7 @@ import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 
-public interface EmployeeHistoryRepository extends JpaRepository<EmployeeHistory, Long> , EmployeeHistoryRepositoryCustom{
+public interface EmployeeHistoryRepository extends JpaRepository<EmployeeHistory, Long>, EmployeeHistoryRepositoryCustom {
 
     @Query("""
                 select new com.kooyeoung.hrbank.dto.response.ChangeLogDetailRowDto(

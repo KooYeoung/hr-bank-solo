@@ -32,18 +32,18 @@ public record EmployeeDto(
         );
     }
 
-    public static EmployeeDto from(EmployeeSummary summary){
+    public static EmployeeDto from(EmployeeSummary summary) {
         return new EmployeeDto(
-                summary.id()
-                ,summary.name()
-                ,summary.email()
-                ,summary.employeeNumber()
-                ,summary.departmentId()
-                , summary.departmentName()
-                ,summary.position()
-                ,summary.hireDate()
-                ,summary.status().name()
-                ,summary.profileImageId()
+                summary.id(),
+                summary.name(),
+                summary.email(),
+                summary.employeeNumber(),
+                summary.departmentId(),
+                summary.departmentName(),
+                summary.position(),
+                summary.hireDate(),
+                summary.status().name(),
+                summary.profileImageId()
         );
     }
 }

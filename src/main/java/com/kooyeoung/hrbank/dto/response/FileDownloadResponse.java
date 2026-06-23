@@ -6,6 +6,7 @@ public record FileDownloadResponse(
         Resource resource,
         String originalFileName,
         String contentType,
-        Long size) {
+        Long size
+) {
 }
 

@@ -72,12 +72,12 @@ public class EmployeeRepositoryCustomImpl implements EmployeeRepositoryCustom {
                 .select(employee.id.count())
                 .from(employee)
                 .where(
-                        getNameOrEmailContainsIgnoreCase(condition.nameOrEmail())
-                        , getStringPathContainsIgnoreCase(employee.employeeNumber, condition.employeeNumber())
-                        , getStringPathContainsIgnoreCase(employee.position, condition.position())
-                        , getStringPathContainsIgnoreCase(department.name, condition.departmentName())
-                        , getHireDateFilter(condition.hireDateFrom(), condition.hireDateTo())
-                        , getEqEmployeeStatus(condition.status())
+                        getNameOrEmailContainsIgnoreCase(condition.nameOrEmail()),
+                        getStringPathContainsIgnoreCase(employee.employeeNumber, condition.employeeNumber()),
+                        getStringPathContainsIgnoreCase(employee.position, condition.position()),
+                        getStringPathContainsIgnoreCase(department.name, condition.departmentName()),
+                        getHireDateFilter(condition.hireDateFrom(), condition.hireDateTo()),
+                        getEqEmployeeStatus(condition.status())
                 )
                 .fetchOne();
         return employeeCount == null ? 0 : employeeCount;
