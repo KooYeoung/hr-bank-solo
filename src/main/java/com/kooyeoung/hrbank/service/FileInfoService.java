@@ -4,7 +4,10 @@ import com.kooyeoung.hrbank.dto.response.FileDownloadResponse;
 import com.kooyeoung.hrbank.entity.FileInfo;
 import com.kooyeoung.hrbank.entity.FileType;
 import com.kooyeoung.hrbank.exception.CustomInternalServerException;
-import com.kooyeoung.hrbank.exception.fileInfo.*;
+import com.kooyeoung.hrbank.exception.fileInfo.FileDeleteNotAllowedException;
+import com.kooyeoung.hrbank.exception.fileInfo.FileInfoNotFoundException;
+import com.kooyeoung.hrbank.exception.fileInfo.InvalidFileNameException;
+import com.kooyeoung.hrbank.exception.fileInfo.UnsupportedFileTypeException;
 import com.kooyeoung.hrbank.repository.FileInfoRepository;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
@@ -32,11 +35,13 @@ public class FileInfoService {
 
     private final FileInfoRepository repository;
     private final Path rootPath;
+    private final FileTransactionManager fileTransactionManager;
     private static final Set<String> AVAILABLE_IMAGE_EXTENSIONS = Set.of(".jpg", ".jpeg", ".png", ".gif", ".webp", ".bmp", ".svg");
 
-    public FileInfoService(FileInfoRepository repository, @Value("${hrbank.file-directory}") String uploadDir) {
+    public FileInfoService(FileInfoRepository repository, @Value("${hrbank.file-directory}") String uploadDir, FileTransactionManager fileTransactionManager) {
         this.repository = repository;
         this.rootPath = Paths.get(uploadDir).toAbsolutePath().normalize();
+        this.fileTransactionManager = fileTransactionManager;
 
         try {
             Files.createDirectories(rootPath);
@@ -45,6 +50,7 @@ public class FileInfoService {
         }
     }
 
+    @Transactional(readOnly = true)
     public FileDownloadResponse download(Long id) {
         FileInfo fileInfo = getFileInfoById(id);
 
@@ -99,6 +105,9 @@ public class FileInfoService {
         try {
             Files.createDirectories(directory);
             file.transferTo(storePath);
+
+            // DB 트랜잭션이 롤백되면 새로 저장한 파일 삭제
+            fileTransactionManager.deleteOnRollback(storePath);
 
             FileInfo fileInfo = new FileInfo(
                     originalFilename
@@ -159,12 +168,8 @@ public class FileInfoService {
             throw new FileDeleteNotAllowedException();
 
         Path path = Paths.get(fileInfo.getFilePath());
-        try {
-            Files.deleteIfExists(path);
-            repository.delete(fileInfo);
-        } catch (IOException e) {
-            throw new CustomInternalServerException("파일 삭제 중 오류가 발생했습니다.", e);
-        }
+        repository.delete(fileInfo);
+        fileTransactionManager.deleteAfterCommit(path);
 
     }
 
@@ -202,6 +207,8 @@ public class FileInfoService {
 
             fileWriter.write(storePath);
 
+            fileTransactionManager.deleteOnRollback(storePath);
+
             long size = Files.size(storePath);
 
             FileInfo fileInfo = new FileInfo(
@@ -216,6 +223,7 @@ public class FileInfoService {
             return repository.save(fileInfo);
 
         } catch (IOException e) {
+            // 메서드 내부 실패 대비
             deleteQuietly(storePath);
             throw new CustomInternalServerException("파일 저장 중 오류가 발생했습니다.", e);
         } catch (RuntimeException e) {

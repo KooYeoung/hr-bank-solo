@@ -58,13 +58,6 @@ public class EmployeeService {
                 )
         );
 
-        // TODO 2차 수정 이벤트 관리 방식으로 변환 예정.
-
-        /**
-         * 만약 파일 저장은 됐는데 직원 저장에서 예외가 나면 실제 파일이 디스크에 남을 수 있습니다.
-         * 이것도 나중에 보상 처리나 afterCommit 이벤트로 정리
-         */
-
         return EmployeeDto.from(snapshot);
     }
 
@@ -162,12 +155,6 @@ public class EmployeeService {
         employeeHistoryService.save(EmployeeHistoryCreateCommand.create(
                 prevSnapshot, afterSnapshot, memo
         ));
-        // TODO 2차 수정 이벤트 관리 방식으로 변환 예정.
-
-        /**
-         * 만약 파일 저장은 됐는데 직원 저장에서 예외가 나면 실제 파일이 디스크에 남을 수 있습니다.
-         * 이것도 나중에 보상 처리나 afterCommit 이벤트로 정리
-         */
 
         return EmployeeDto.from(afterSnapshot);
     }
@@ -185,7 +172,6 @@ public class EmployeeService {
         employeeHistoryService.save(EmployeeHistoryCreateCommand.create(
                 snapshot, null, ""
         ));
-        // TODO 2차 수정 이벤트 관리 방식으로 변환 예정.
 
         repository.delete(foundEmployee);
     }
